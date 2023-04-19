@@ -1,17 +1,14 @@
-import React from "react";
+import React, {useContext} from "react";
+import {AppContext} from "../Context";
 
 
-
-const OverlayItem = (
-    label,
-    id,
-    xtop,
-    ytop,
-    width,
-    height,
-) => {
-    const color = (label === 1) ? 'rgba(18,120,9, 0.6)' : 'rgba(204,41,90, 0.6)';
-
+const OverlayItem = ( bbox ) => {
+    console.log(id)
+    const { id, label, xtop, ytop, width, height } = bbox
+    const { chBbox } = useContext(AppContext);
+    const [ chosenBbox, setChosenBbox ] = chBbox
+    const color = (label === 1) ? 'rgba(18,120,9, 0.3)' : 'rgba(204,41,90, 0.3)';
+    const bordercolor = (label === 1) ? 'rgb(18,120,9)' : 'rgb(204,41,90)';
     const overlaystyle = {
         position: 'absolute',
         backgroundColor: color,
@@ -19,20 +16,24 @@ const OverlayItem = (
         left: `${xtop}px`,
         width: `${width}px`,
         height: `${height}px`,
+        borderWidth: '2px',
+        borderStyle: (chosenBbox === id) ? 'solid': 'none',
+        borderColor: bordercolor,
     }
 
-    console.log(overlaystyle)
     return (
         <div
             className='mask'
             key={id}
-            style={overlaystyle}>
+            onMouseEnter={() => setChosenBbox(id)}
+            onMouseLeave={() => setChosenBbox(-1)}
+            style={overlaystyle}
+            >
         </div>
         );
 }
 
 const Overlay = ( bboxes ) => {
-    console.log(bboxes)
     return (
         <div style={{
             position: 'absolute',
@@ -40,14 +41,9 @@ const Overlay = ( bboxes ) => {
             height: '100%',
         }}
         >
-            {bboxes.bboxes.map(bbox => {
+            {bboxes.bboxes.map((bbox) => {
                 return OverlayItem(
-                    bbox.id,
-                    bbox.label,
-                    bbox.xtop,
-                    bbox.ytop,
-                    bbox.width,
-                    bbox.height,
+                    bbox
                 );
             })}
         </div>

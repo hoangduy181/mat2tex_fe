@@ -10,11 +10,13 @@ export default ({children}) => {
         url: "https:\/\/i.ibb.co\/9HDh13D\/0001101-page09-jpg-rf-e0d0d3cf98a05edcc11fabf9a0f74f1b.jpg"
     });
     const [bboxes, setBboxes] = useState([]);
+    const [chosenBbox, setChosenBbox] = useState(-1)
 
     const globalVariables = {
         appPhase: [phase, setPhase],
         imageDisplay: [imageUrl, setImageUrl],
-        result: [bboxes, setBboxes]
+        result: [bboxes, setBboxes],
+        chBbox: [chosenBbox, setChosenBbox]
     }
 
     return (

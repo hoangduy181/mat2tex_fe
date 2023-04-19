@@ -161,23 +161,28 @@ const UploadAndPreview = () => {
 				banned files.
 			</p>
 		</Dragger>
-		<span
+		<div
 			className="ant-upload-wrapper css-dev-only-do-not-override-htwhyh"
-			onPaste = {(e) => handlePaste(e)}
+			onPaste = {(e) => {
+				e.preventDefault()
+				handlePaste(e)
+			}}
 		>
-			<div className="ant-upload ant-upload-drag css-dev-only-do-not-override-htwhyh">
+			<div
+			className="ant-upload ant-upload-drag css-dev-only-do-not-override-htwhyh"
+			>
 				<span>
 					<p className="ant-upload-drag-icon">
 					<SnippetsOutlined />
 					</p>
 					<p className="ant-upload-text">Click this area and paste image to upload</p>
-					{/* <p className="ant-upload-hint">
+					<p className="ant-upload-hint">
 						Support for a single upload. Strictly prohibited from uploading company data or other
 						banned files.
-					</p> */}
+					</p>
 				</span>
 			</div>
-		</span>
+		</div>
 	</Space>
 	)
 

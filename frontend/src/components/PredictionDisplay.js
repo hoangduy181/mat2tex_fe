@@ -1,13 +1,15 @@
-import React from 'react'
-import { Row, Col, Collapse, theme, Button, Space, Image } from 'antd'
+import React, {useState} from 'react'
+import { Row, Col, Collapse, theme, Button, Space, Image, Divider } from 'antd'
 import { AppContext } from '../Context';
 import { CaretRightOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
+import BBTab from './BboxTab';
 
 const {Panel} = Collapse
 
 
-const LabelCollapse = () => {
+
+const BboxCollapse = () => {
   const { token } = theme.useToken();
 
   const panelStyle = {
@@ -15,9 +17,11 @@ const LabelCollapse = () => {
     background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     border: 'none',
+    ghost: true
   };
 
   return (
+        <div>
         <Collapse
           bordered={false}
           defaultActiveKey={['labels', 'bboxes']}
@@ -27,26 +31,41 @@ const LabelCollapse = () => {
             width: '100%'
           }}
         >
-          <Panel header="Labels" key="labels" style={panelStyle}>
-            <p style={{color: 'rgb(18,120,9)'}}>Isolated Expression</p>
-            <p style={{color: 'rgb(204,41,90)'}}>Embedded Expression</p>
-          </Panel>
-          <Panel header="Bounding Boxes" key="bboxes" style={panelStyle}>
-              {bboxes.map((bbox) => {
-                  return (bbox.label === 0) ?
-                    <p style={{color: 'rgb(18,120,9)'}}>
-                      Isolated Expression {bbox.id}
-                    </p> :
-                    <p style={{color: 'rgb(204,41,90)'}}>
-                      Embedded Expression  {bbox.id}
-                    </p>
-                }
-              )}
+        <Panel
+          header={<span
+            // style={{fontWeight: '500',
+            // fontSize: '16px'}}
+          >Labels</span>}
+          key="labels"
+          style={panelStyle}
+          showArrow={false}
+        >
+          <p style={{color: 'rgb(18,120,9)'}}>Isolated Expression</p>
+          <p style={{color: 'rgb(204,41,90)'}}>Embedded Expression</p>
+        </Panel>
+        <Panel
+          header={<span
+            // style={{fontWeight: '500',
+            // fontSize: '16px'}}
+            >Bounding Boxes</span>}
+          key="bboxes"
+          style={panelStyle}
+          showArrow={false}
+        >
+              {bboxes.map(
+                bbox => {
+                return (
+                  <BBTab
+                    key={bbox.id}
+                    {...bbox}
+                  />
+                );
+              })}
           </Panel>
         </Collapse>
+        </div>
       );
 };
-
 
 const bboxes = [
   {
@@ -73,6 +92,7 @@ const PredictionDisplay = () => {
     const {imageDisplay, appPhase} = React.useContext(AppContext)
     const [imageUrl] = imageDisplay;
     const [phase, setPhase] = appPhase;
+
 
 
     return (<div>
@@ -106,14 +126,14 @@ const PredictionDisplay = () => {
                 </Col>
                 <Col p={4}>
                     <Row align='top' style={{marginBottom: '30px'}}>
+                      <Col p={24}>
                       <Space wrap>
                       <Button type="primary" onClick={() => setPhase('result')}> Get TeX code </Button>
                       <Button onClick={() => setPhase('upload')}> Upload another </Button>
                       </Space>
+                      </Col>
                     </Row>
-                    <Row align='top'>
-                        <LabelCollapse />
-                    </Row>
+                    <BboxCollapse />
                 </Col>
             </Row>
     </div>)
