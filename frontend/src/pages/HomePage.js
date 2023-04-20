@@ -28,8 +28,9 @@ const HomePage = () => {
 		token: { colorBgContainer },
 	} = theme.useToken();
 
-	const {appPhase} = React.useContext(AppContext)
+	const {appPhase, loading} = React.useContext(AppContext)
 	const [phase, setPhase] = appPhase;
+	const [isLoading] = loading;
 	return (
 		<Layout>
 			<PageHeader/>

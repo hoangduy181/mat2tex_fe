@@ -27,18 +27,17 @@ const props = {
 };
 
 
-const handleUploadAnother = () => {
-	console.log('upload another')
-	// delete the file on imgbb
-}
+
+
 
 
 
 const UploadAndPreview = () => {
-	const {appPhase, imageDisplay} = React.useContext(AppContext)
+	const {appPhase, imageDisplay, prediction, loading} = React.useContext(AppContext)
 	const [phase, setPhase] = appPhase
 	const [imageUrl, setImageUrl] = imageDisplay;
-
+	const [bboxes, setBboxes] = prediction;
+	const [isLoading, setIsLoading] = loading;
 	//upload: upload / preview
 	const [step, setStep] = useState('preview');
 
@@ -60,13 +59,15 @@ const UploadAndPreview = () => {
 
 			onSuccess("Ok");
 			setStep('review');
-			console.log(res)
-			const image={
+			const image = {
 				width:res.data.data.width,
 				height:res.data.data.height,
-				url:res.data.data.url
+				url:res.data.data.url,
+				delurl:res.data.data.delete_url
 			}
+			console.log(image)
 			setImageUrl(image);
+
 		} catch (err) {
 			console.log("Error: ", err);
 			onError({ err });
@@ -119,26 +120,95 @@ const UploadAndPreview = () => {
 		}
 	}
 
+	const handlePredict = async () => {
+		try {
+			setIsLoading(true)
+			const res = await axios.get(
+				'https://run.mocky.io/v3/5b3a32a0-a8e6-4394-af3c-b409e89d58e8'
+			).then(res => {
+				setIsLoading(false)
+				return res
+			})
+			const prediction = res.data.boxes
+
+			const {isolated, embedded} = prediction
+			console.log(isolated, embedded)
+
+			const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
+
+			const isolated_box = isolated.map((box) => {
+				return {
+				id: box.id,
+				x: box.xyxy[0]*scale,
+				y: box.xyxy[1]*scale,
+				width: (box.xyxy[2] - box.xyxy[0])*scale,
+				height: (box.xyxy[3] - box.xyxy[1])*scale,
+				// confidence: box.confidence,
+				label: 0
+			}})
+			const embedded_box = embedded.map((box) => {
+				return {
+				id: box.id,
+				x: box.xyxy[0]*scale,
+				y: box.xyxy[1]*scale,
+				width: (box.xyxy[2] - box.xyxy[0])*scale,
+				height: (box.xyxy[3] - box.xyxy[1])*scale,
+				// confidence: box.confidence,
+				label: 1
+			}})
+
+			const boxes = [...isolated_box, ...embedded_box]
+			console.log(boxes)
+			setBboxes(boxes)
+
+		} catch (err) {
+			console.log('Error: ', err);
+		}
+	}
+
+	const handleUploadAnother = async () => {
+		console.log('upload another')
+		try {
+			console.log(imageUrl)
+			const res = await axios.post(imageUrl.delurl)
+			console.log(res)
+			} catch (err) {
+			console.log(err)
+		}
+	}
+
 	const Preview = () => (
 		<div>
-				<Row justify="space-between" align="top">
+				<Row justify="space-between" align="top" style={{width: '100%'}}>
 					<Col span={20} style={{
 						padding: '0 12px 0 12px',
 						display: 'flex',
-    					justifyContent: 'center'
+    					justifyContent: 'center',
+						justifyContent: 'center',
+						position: 'relative'
 						}}
 					>
-						<Image
-							preview = {false}
+						<img
+							// preview = {false}
 							src = {imageUrl.url}
 							className='image-preview'
-							style = {{display: 'block', width: '100%', maxWidth: '900px'}}
+							style = {{
+								display: 'block',
+								width: '100%',
+								maxWidth: '900px'
+							}}
 						/>
 					</Col>
 					<Col span={4}>
-						<Space wrap>
-						<Button onClick={() => setPhase('predict')} type="primary"> Proceed to next step </Button>
-						<Button onClick={() => setStep('upload')}> Upload another </Button>
+						<Space wrap direction='horizontal'>
+						<Button onClick={() => {
+							handlePredict();
+							setPhase('predict');
+						}} type="primary"> Proceed to next step </Button>
+						<Button onClick={() => {
+							handleUploadAnother();
+							setStep('upload');
+						}}> Upload another </Button>
 						</Space>
 					</Col>
 				</Row>

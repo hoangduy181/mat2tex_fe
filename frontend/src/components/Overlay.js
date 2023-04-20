@@ -4,7 +4,7 @@ import {AppContext} from "../Context";
 
 const OverlayItem = ( bbox ) => {
     console.log(id)
-    const { id, label, xtop, ytop, width, height } = bbox
+    const { id, label, x, y, width, height } = bbox
     const { chBbox } = useContext(AppContext);
     const [ chosenBbox, setChosenBbox ] = chBbox
     const color = (label === 1) ? 'rgba(18,120,9, 0.3)' : 'rgba(204,41,90, 0.3)';
@@ -12,8 +12,8 @@ const OverlayItem = ( bbox ) => {
     const overlaystyle = {
         position: 'absolute',
         backgroundColor: color,
-        top: `${ytop}px`,
-        left: `${xtop}px`,
+        top: `${y}px`,
+        left: `${x}px`,
         width: `${width}px`,
         height: `${height}px`,
         borderWidth: '2px',
@@ -37,6 +37,7 @@ const Overlay = ( bboxes ) => {
     return (
         <div style={{
             position: 'absolute',
+            maxWidth: '900px',
             width: '100%',
             height: '100%',
         }}
