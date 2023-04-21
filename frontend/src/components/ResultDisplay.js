@@ -20,37 +20,7 @@ const ResultCollapse = () => {
       };
     return (
         <div>
-        <Collapse
-          bordered={false}
-          defaultActiveKey={['labels', 'bboxes']}
-          expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-          style={{
-            background: token.colorBgContainer,
-            width: '100%'
-          }}
-        >
-        <Panel
-          header={<span
-            // style={{fontWeight: '500',
-            // fontSize: '16px'}}
-            >Bounding Boxes</span>}
-          key="bboxes"
-          style={panelStyle}
-          showArrow={false}
-        >
-              {/* {bboxes.map(
-                bbox => {
-                return (
-                  <BBTab
-                    key={bbox.id}
-                    {...bbox}
-                  />
-                );
-              })} */}
-
               <ResultTabs/>
-          </Panel>
-        </Collapse>
         </div>
 
     )

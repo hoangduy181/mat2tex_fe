@@ -18,7 +18,8 @@ const BboxCollapse = () => {
     marginBottom: 24,
     background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
-    border: 'none',
+    // border: 'none',
+    border: '1px solid #d9d9d9',
     ghost: true
   };
 
@@ -42,8 +43,14 @@ const BboxCollapse = () => {
           style={panelStyle}
           showArrow={false}
         >
-          <p style={{color: 'rgb(18,120,9)'}}>Isolated Expression</p>
-          <p style={{color: 'rgb(204,41,90)'}}>Embedded Expression</p>
+          <p style={{
+            color: 'rgb(18,120,9)',
+            margin: '4px 0'
+            }}>Isolated Expression</p>
+          <p style={{
+            color: 'rgb(204,41,90)',
+            margin: '4px 0'
+            }}>Embedded Expression</p>
         </Panel>
         <Panel
           header={<span

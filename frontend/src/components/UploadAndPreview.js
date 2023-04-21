@@ -39,7 +39,7 @@ const UploadAndPreview = () => {
 	const [bboxes, setBboxes] = prediction;
 	const [isLoading, setIsLoading] = loading;
 	//upload: upload / preview
-	const [step, setStep] = useState('preview');
+	const [step, setStep] = useState('upload');
 
 	const uploadImage = async options => {
 		const { onSuccess, onError, file } = options;
@@ -105,6 +105,7 @@ const UploadAndPreview = () => {
 				// onSuccess("Ok");
 				setStep('review');
 				console.log(res)
+				message.success("Image uploaded successfully")
 				const image={
 					width:res.data.data.width,
 					height:res.data.data.height,
