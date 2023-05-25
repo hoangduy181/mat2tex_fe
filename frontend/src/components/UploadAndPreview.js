@@ -234,14 +234,14 @@ const UploadAndPreview = () => {
 			</p>
 		</Dragger>
 		<div
-			className="ant-upload-wrapper css-dev-only-do-not-override-w8mnev css-w8mnev"
+			className="ant-upload-wrapper css-dev-only-do-not-override-w8mnev css-w8mnev css-htwhyh"
 			onPaste = {(e) => {
 				e.preventDefault()
 				handlePaste(e)
 			}}
 		>
 			<div
-			className="ant-upload ant-upload-drag css-dev-only-do-not-override-w8mnev css-w8mnev"
+			className="ant-upload ant-upload-drag css-dev-only-do-not-override-w8mnev css-w8mnev css-htwhyh"
 			>
 				<span>
 					<p className="ant-upload-drag-icon">
