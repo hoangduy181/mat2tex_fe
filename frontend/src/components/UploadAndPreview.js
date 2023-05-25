@@ -125,7 +125,7 @@ const UploadAndPreview = () => {
 		try {
 			setIsLoading(true)
 			const res = await axios.get(
-				'https://run.mocky.io/v3/5b3a32a0-a8e6-4394-af3c-b409e89d58e8'
+				'https://run.mocky.io/v3/f362c99d-84ef-46d7-a112-b8c1749997cc'
 			).then(res => {
 				setIsLoading(false)
 				return res
@@ -204,6 +204,7 @@ const UploadAndPreview = () => {
 						<Space wrap direction='horizontal'>
 						<Button onClick={() => {
 							handlePredict();
+							setStep('upload');
 							setPhase('predict');
 						}} type="primary"> Proceed to next step </Button>
 						<Button onClick={() => {
@@ -233,14 +234,14 @@ const UploadAndPreview = () => {
 			</p>
 		</Dragger>
 		<div
-			className="ant-upload-wrapper css-dev-only-do-not-override-htwhyh"
+			className="ant-upload-wrapper css-dev-only-do-not-override-w8mnev css-w8mnev"
 			onPaste = {(e) => {
 				e.preventDefault()
 				handlePaste(e)
 			}}
 		>
 			<div
-			className="ant-upload ant-upload-drag css-dev-only-do-not-override-htwhyh"
+			className="ant-upload ant-upload-drag css-dev-only-do-not-override-w8mnev css-w8mnev"
 			>
 				<span>
 					<p className="ant-upload-drag-icon">
