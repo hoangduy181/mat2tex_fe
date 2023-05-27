@@ -118,7 +118,7 @@ const PredictionDisplay = () => {
         fmData.append("point_list", point_list);
 
         const res = await axios.post(
-          "http://localhost:5000/predict",
+          "http://localhost:5000/extract",
           // "",
           fmData,
           config

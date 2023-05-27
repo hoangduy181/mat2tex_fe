@@ -150,7 +150,7 @@ const UploadAndPreview = () => {
 			fmData.append("image", file);
 
 			const res = await axios.post(
-				"http://localhost:5000/predict",
+				"http://localhost:5000/detect",
 				// "",
 				fmData,
 				config
