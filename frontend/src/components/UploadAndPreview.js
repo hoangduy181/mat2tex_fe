@@ -147,7 +147,7 @@ const UploadAndPreview = () => {
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 			};
-			fmData.append("image", file);
+			fmData.append("file", file);
 
 			const res = await axios.post(
 				"http://localhost:5000/detect",

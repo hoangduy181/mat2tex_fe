@@ -114,7 +114,7 @@ const PredictionDisplay = () => {
         const config = {
           headers: { "content-type": "multipart/form-data" },
         };
-        fmData.append("image", file);
+        fmData.append("file", file);
         fmData.append("point_list", point_list);
 
         const res = await axios.post(
