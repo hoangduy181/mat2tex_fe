@@ -154,16 +154,12 @@ const UploadAndPreview = () => {
 				// "",
 				fmData,
 				config
-			)
-			// const res = await axios.get(
-			// 	// 'https://run.mocky.io/v3/f362c99d-84ef-46d7-a112-b8c1749997cc'
-			// 	// 'https://run.mocky.io/v3/1113bdb9-2558-494c-b1bc-0f2300983fc5'
-			// )
-			.then(res => {
+			).then(res => {
 				setIsLoading(false)
 				return res
 			})
-
+			console.log(res.data)
+			console.log(res.data.predictions)
 			const predictions = res.data.predictions
 			const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
 
@@ -178,57 +174,13 @@ const UploadAndPreview = () => {
 					y: y1*scale,
 					width: (x2-x1)*scale,
 					height: (y2-y1)*scale,
+					confidence,
 					label: (className === 'embedded') ? 1 : 0,
 				}
 			})
 
 			console.log(returnBoxes)
-
-			// const returnResults = predictions.map((prediction) => {
-			// 	const {latex, img_name: id} = prediction
-			// 	return {
-			// 		id,
-			// 		latex,
-			// 	}
-			// })
-			// setResultBoxes(resultBoxes)
-
 			setBboxes(returnBoxes)
-			// setResults(returnResults)
-
-
-
-
-			// const prediction = res.data.boxes
-			// const {isolated, embedded} = prediction
-			// console.log(isolated, embedded)
-
-			// const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
-
-			// const isolated_box = isolated.map((box) => {
-			// 	return {
-			// 	id: box.id,
-			// 	x: box.xyxy[0]*scale,
-			// 	y: box.xyxy[1]*scale,
-			// 	width: (box.xyxy[2] - box.xyxy[0])*scale,
-			// 	height: (box.xyxy[3] - box.xyxy[1])*scale,
-			// 	// confidence: box.confidence,
-			// 	label: 0
-			// }})
-			// const embedded_box = embedded.map((box) => {
-			// 	return {
-			// 	id: box.id,
-			// 	x: box.xyxy[0]*scale,
-			// 	y: box.xyxy[1]*scale,
-			// 	width: (box.xyxy[2] - box.xyxy[0])*scale,
-			// 	height: (box.xyxy[3] - box.xyxy[1])*scale,
-			// 	// confidence: box.confidence,
-			// 	label: 1
-			// }})
-
-			// const boxes = [...isolated_box, ...embedded_box]
-			// console.log(boxes)
-			// setBboxes(boxes)
 
 		} catch (err) {
 			console.log('Error: ', err);

@@ -122,12 +122,7 @@ const PredictionDisplay = () => {
           // "",
           fmData,
           config
-        )
-        // const res = await axios.get(
-        //   // 'https://run.mocky.io/v3/d7593ea8-8bf8-4799-98ba-7738db356521'
-        //   'https://run.mocky.io/v3/1113bdb9-2558-494c-b1bc-0f2300983fc5'
-        //   )
-          .then(
+        ).then(
           res => {
             const result_list = res.data.predictions.map(
               (prediction, index) => {
@@ -139,19 +134,6 @@ const PredictionDisplay = () => {
               }
             )
             setCodes(result_list)
-
-            // let result_dict = {}
-
-            // for (let i = 0; i < res.data.predictions.length; i++) {
-            //   prediction = res.data.predictions[i]
-            //   const {img_name, latex} = prediction
-            //   if (result_dict[img_name] === undefined) {
-            //     result_dict[img_name] = latex
-            //   }
-
-            // }
-
-            // setCodes(result_dict)
             setIsLoading(false)
             return res
           }
