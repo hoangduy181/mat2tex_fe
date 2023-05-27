@@ -66,7 +66,7 @@ const HomePage = () => {
 
 				</Layout>
 			</Content>
-			<Footer style={{ textAlign: 'center' }}>Chuong ga sap cook ©2023</Footer>
+			<Footer style={{ textAlign: 'center' }}>M2T ©2023</Footer>
 		</Layout>
 	);
 };

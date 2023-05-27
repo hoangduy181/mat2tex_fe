@@ -14,7 +14,7 @@ const Docs = () => {
             >
                 <h1>Docs us</h1>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>Chuong ga sap cook ©2023</Footer>
+            <Footer style={{ textAlign: 'center' }}>M2T ©2023</Footer>
         </Layout>
     )
 }

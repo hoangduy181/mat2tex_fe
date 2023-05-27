@@ -5,6 +5,7 @@ import { CaretRightOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
 import BBTab from './BboxTab';
 import axios from 'axios';
+import ImageMask ,{ DragablePoint } from './EditableBBox';
 const {Panel} = Collapse
 
 
@@ -85,14 +86,72 @@ const PredictionDisplay = () => {
     const [codes, setCodes] = result;
     const [isLoading, setIsLoading] = loading;
 
-    const handleExtract = async () => {
+    function dataURLtoFile(dataurl, filename) {
+      var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[arr.length - 1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+      while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], filename, {type:mime});
+    }
 
+    const point_list = bboxes.map(
+      bbox => {
+        return [bbox.x1, bbox.y1, bbox.x2, bbox.y2, bbox.confidence, (bbox.className == 1) ? 'embedded' : 'isolated', bbox.id]
+      }
+    )
+
+    const handleExtract = async () => {
       try {
         setIsLoading(true)
-        const res = await axios.get('https://run.mocky.io/v3/d7593ea8-8bf8-4799-98ba-7738db356521').then(
+        const imgData = localStorage.getItem('imgData')
+        var file = dataURLtoFile(imgData,'image.png');
+        console.log(file)
+        const fmData = new FormData();
+        const config = {
+          headers: { "content-type": "multipart/form-data" },
+        };
+        fmData.append("image", file);
+        fmData.append("point_list", point_list);
+
+        const res = await axios.post(
+          "http://localhost:5000/predict",
+          // "",
+          fmData,
+          config
+        )
+        // const res = await axios.get(
+        //   // 'https://run.mocky.io/v3/d7593ea8-8bf8-4799-98ba-7738db356521'
+        //   'https://run.mocky.io/v3/1113bdb9-2558-494c-b1bc-0f2300983fc5'
+        //   )
+          .then(
           res => {
-            const result_list = res.data.results
+            const result_list = res.data.predictions.map(
+              (prediction, index) => {
+                const {img_name, latex} = prediction
+                return {
+                  id: index,
+                  code: latex
+                }
+              }
+            )
             setCodes(result_list)
+
+            // let result_dict = {}
+
+            // for (let i = 0; i < res.data.predictions.length; i++) {
+            //   prediction = res.data.predictions[i]
+            //   const {img_name, latex} = prediction
+            //   if (result_dict[img_name] === undefined) {
+            //     result_dict[img_name] = latex
+            //   }
+
+            // }
+
+            // setCodes(result_dict)
             setIsLoading(false)
             return res
           }
@@ -132,7 +191,8 @@ const PredictionDisplay = () => {
                           maxWidth: '900px'}}
                     >
                     </img>
-                    <Overlay bboxes={bboxes} />
+                    <Overlay bboxes={bboxes}/>
+                    {/* <ImageMask/> */}
                 </Col>
                 <Col p={4}>
                     <Row align='top' style={{marginBottom: '30px'}}>
