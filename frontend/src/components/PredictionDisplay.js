@@ -98,11 +98,14 @@ const PredictionDisplay = () => {
       return new File([u8arr], filename, {type:mime});
     }
 
+    const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
+
     const point_list = bboxes.map(
       bbox => {
-        return [bbox.x1, bbox.y1, bbox.x2, bbox.y2, bbox.confidence, (bbox.className == 1) ? 'embedded' : 'isolated', bbox.id]
+        return [bbox.x/scale, bbox.y/scale, (bbox.x+bbox.width)/scale, (bbox.y+bbox.height)/scale, bbox.confidence, (bbox.label == 1) ? 'embedded' : 'isolated', bbox.id.toString()]
       }
     )
+    console.log(JSON.stringify(point_list))
 
     const handleExtract = async () => {
       try {
@@ -115,7 +118,7 @@ const PredictionDisplay = () => {
           headers: { "content-type": "multipart/form-data" },
         };
         fmData.append("file", file);
-        fmData.append("point_list", point_list);
+        fmData.append("point_list", JSON.stringify(point_list));
 
         const res = await axios.post(
           "http://localhost:5000/extract",
