@@ -26,24 +26,27 @@ const props = {
   },
 };
 
-
-
-
-
-
-
 const UploadAndPreview = () => {
-	const {appPhase, imageDisplay, prediction, loading} = React.useContext(AppContext)
+	const {appPhase, imageDisplay, prediction, loading, result} = React.useContext(AppContext)
 	const [phase, setPhase] = appPhase
 	const [imageUrl, setImageUrl] = imageDisplay;
 	const [bboxes, setBboxes] = prediction;
 	const [isLoading, setIsLoading] = loading;
+
 	//upload: upload / preview
 	const [step, setStep] = useState('upload');
 
 	const uploadImage = async options => {
 		const { onSuccess, onError, file } = options;
-
+		// console.log(typeof(file))
+		// setTmpFile(file)
+		var reader = new FileReader();
+		reader.onload = function () {
+			var thisImage = reader.result;
+			localStorage.setItem("imgData", thisImage);
+		};
+		reader.readAsDataURL(file)
+		// localStorage.setItem('imgData', file)
 		const fmData = new FormData();
 		const config = {
 			headers: { "content-type": "multipart/form-data" },
@@ -121,46 +124,63 @@ const UploadAndPreview = () => {
 		}
 	}
 
+	function dataURLtoFile(dataurl, filename) {
+		var arr = dataurl.split(','),
+			mime = arr[0].match(/:(.*?);/)[1],
+			bstr = atob(arr[arr.length - 1]),
+			n = bstr.length,
+			u8arr = new Uint8Array(n);
+		while(n--){
+			u8arr[n] = bstr.charCodeAt(n);
+		}
+		return new File([u8arr], filename, {type:mime});
+	}
+
 	const handlePredict = async () => {
 		try {
 			setIsLoading(true)
-			const res = await axios.get(
-				'https://run.mocky.io/v3/5b3a32a0-a8e6-4394-af3c-b409e89d58e8'
+			// console.log(typeof(tmpFile))
+			const imgData = localStorage.getItem('imgData')
+			var file = dataURLtoFile(imgData,'image.png');
+			console.log(file)
+			const fmData = new FormData();
+			const config = {
+				headers: { "content-type": "multipart/form-data" },
+			};
+			fmData.append("file", file);
+
+			const res = await axios.post(
+				"http://localhost:5000/detect",
+				// "",
+				fmData,
+				config
 			).then(res => {
 				setIsLoading(false)
 				return res
 			})
-			const prediction = res.data.boxes
-
-			const {isolated, embedded} = prediction
-			console.log(isolated, embedded)
-
+			console.log(res.data)
+			console.log(res.data.predictions)
+			const predictions = res.data.predictions
 			const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
 
-			const isolated_box = isolated.map((box) => {
-				return {
-				id: box.id,
-				x: box.xyxy[0]*scale,
-				y: box.xyxy[1]*scale,
-				width: (box.xyxy[2] - box.xyxy[0])*scale,
-				height: (box.xyxy[3] - box.xyxy[1])*scale,
-				// confidence: box.confidence,
-				label: 0
-			}})
-			const embedded_box = embedded.map((box) => {
-				return {
-				id: box.id,
-				x: box.xyxy[0]*scale,
-				y: box.xyxy[1]*scale,
-				width: (box.xyxy[2] - box.xyxy[0])*scale,
-				height: (box.xyxy[3] - box.xyxy[1])*scale,
-				// confidence: box.confidence,
-				label: 1
-			}})
 
-			const boxes = [...isolated_box, ...embedded_box]
-			console.log(boxes)
-			setBboxes(boxes)
+			const returnBoxes = predictions.map((prediction, index) => {
+				// const {coordinates, img_name, class: class_} = prediction
+				// const [x1, y1, x2, y2] = coordinates
+				const [x1, y1, x2, y2, confidence, className] = prediction
+				return {
+					id: index,
+					x: x1*scale,
+					y: y1*scale,
+					width: (x2-x1)*scale,
+					height: (y2-y1)*scale,
+					confidence,
+					label: (className === 'embedded') ? 1 : 0,
+				}
+			})
+
+			console.log(returnBoxes)
+			setBboxes(returnBoxes)
 
 		} catch (err) {
 			console.log('Error: ', err);
@@ -204,6 +224,7 @@ const UploadAndPreview = () => {
 						<Space wrap direction='horizontal'>
 						<Button onClick={() => {
 							handlePredict();
+							setStep('upload');
 							setPhase('predict');
 						}} type="primary"> Proceed to next step </Button>
 						<Button onClick={() => {
@@ -233,14 +254,14 @@ const UploadAndPreview = () => {
 			</p>
 		</Dragger>
 		<div
-			className="ant-upload-wrapper css-dev-only-do-not-override-htwhyh"
+			className="ant-upload-wrapper css-dev-only-do-not-override-w8mnev css-w8mnev css-htwhyh"
 			onPaste = {(e) => {
 				e.preventDefault()
 				handlePaste(e)
 			}}
 		>
 			<div
-			className="ant-upload ant-upload-drag css-dev-only-do-not-override-htwhyh"
+			className="ant-upload ant-upload-drag css-dev-only-do-not-override-w8mnev css-w8mnev css-htwhyh"
 			>
 				<span>
 					<p className="ant-upload-drag-icon">
