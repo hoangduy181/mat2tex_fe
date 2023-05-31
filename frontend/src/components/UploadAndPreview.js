@@ -87,6 +87,12 @@ const UploadAndPreview = () => {
 				type: fileObject.type,
 				uid: fileObject.uid,
 			};
+			var reader = new FileReader();
+			reader.onload = function () {
+				var thisImage = reader.result;
+				localStorage.setItem("imgData", thisImage);
+			};
+			reader.readAsDataURL(file.getRawFile)
 			console.log(file.getRawFile())
 
 			// console.log(createURLfile)
