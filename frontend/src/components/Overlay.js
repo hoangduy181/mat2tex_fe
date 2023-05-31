@@ -28,7 +28,9 @@ const OverlayItem = ( bbox, phase ) => {
       (phase === 'result') ?
       <Popover
         content={
-          <Paragraph copyable={democode} style={{ margin: 0 }}>
+          <Paragraph copyable={{
+            text: codes.length > 0 ? codes[id].code : ''
+        }} style={{ margin: 0 }}>
             <Text
               style={{width: 200}}
               ellipsis={{
