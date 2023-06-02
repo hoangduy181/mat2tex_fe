@@ -1,11 +1,13 @@
 import React, { useContext, useState, useEffect } from "react";
+import {forwardRef, useImperativeHandle, useRef} from 'react';
 import { AppContext } from "../Context";
-import { Image, Button, Space, Tooltip } from "antd";
+import { message, Image, Button, Space, Tooltip } from "antd";
 import { SearchOutlined, SaveOutlined, PlusOutlined } from '@ant-design/icons';
+import "../css/EditableBBox.css"
 import axios from "axios";
 
 
-function DragMove(props) {
+const DragMove = (props) => {
     const {
       onMouseDown,
       onMouseUp,
@@ -88,7 +90,7 @@ function DragMove(props) {
         {children}
       </div>
     );
-  }
+  };
 
 DragMove.defaultProps = {
 onMouseDown: () => {},
@@ -98,15 +100,19 @@ onMouseUp: () => {},
 
 
 
-const ImageMask = () => {
+const ImageMask = forwardRef(
+  (props, ref) => {
 
-  const {imageDisplay, appPhase, prediction, result, loading} = useContext(AppContext)
+  const {imageDisplay, appPhase, prediction, result, loading, chAnno} = useContext(AppContext)
   // const [imageUrl] = imageDisplay;
   // const [phase, setPhase] = appPhase;
   // const [bboxes, setBboxes] = prediction;
   // const [codes, setCodes] = result;
   // const [isLoading, setIsLoading] = loading;
-  const [isAdding, setIsAdding] = useState(false)
+  const {isAdding, setIsAdding} = props
+  const [chosenAnno, setChosenAnno] = chAnno
+
+  // const [isAdding, setIsAdding] = useState(false)
   const [annotations, setAnnotations] = useState([
     {
       p0: {x: 100, y: 100},
@@ -118,12 +124,21 @@ const ImageMask = () => {
     }
   ])
 
+  useImperativeHandle(ref, () => ({
+    deleteChosenAnnotation() {
+      setAnnotations(annotations.filter((_, index) => index !== chosenAnno));
+      setChosenAnno(-1)
+    },
+  }))
+
   const [mousePos, setMousePos] = useState({});
   const [tempAnn, setTempAnn] = useState([])
+  const [error, setError] = useState(false)
   // mousePos: vị trí tương đối của chuột so với image-mask
 
   useEffect(() => {
     const imagemask = document.querySelector('.image-mask')
+    // imagemask.disableSelection = true
     const bodyRect = document.body.getBoundingClientRect()
     const elemRect = imagemask.getBoundingClientRect()
     const handleMouseMove = (event) => {
@@ -138,7 +153,6 @@ const ImageMask = () => {
     };
 
     imagemask.addEventListener('mousemove', handleMouseMove);
-
     return () => {
 
       imagemask.removeEventListener(
@@ -146,16 +160,21 @@ const ImageMask = () => {
         handleMouseMove
       );
     };
-  }, []);
+    }, []);
 
-
+  useEffect(() => {
+    if (error == false) return
+    message.error('Cannot move bbox outside image')
+    // setError(false)
+  }, [error]
+  )
     // modify 1 point at a time
     const modifyAnnotation = (index, p, newPoint) => {
       const newAnnotations = [...annotations]
       if (p===0) newAnnotations[index].p0 = newPoint
       if (p===1) newAnnotations[index].p1 = newPoint
       setAnnotations(newAnnotations)
-    }
+    };
 
     // modify the whole bbox
     const modifyBbox = (index, movementX, movementY) => {
@@ -165,30 +184,51 @@ const ImageMask = () => {
       newAnnotations[index].p1.x += movementX
       newAnnotations[index].p1.y += movementY
       setAnnotations(newAnnotations)
-    }
+    };
 
 
     const handleDragMove = (isDragging, e) => {
         const elements = isDragging.split('-')
         if (elements[0] === 'dot') {
+          if (mousePos.x <= 0 || mousePos.y <= 0 || mousePos.x >= 900) {
+            // message.error('Cannot move point outside image')
+            setError(true)
+            return
+          }
+          setError(false)
           const index = elements[1]
           modifyAnnotation(Math.floor(index/2), index%2, mousePos)
         }
         if (elements[0] === 'overlay') {
+          const annotation = annotations[elements[1]]
+          if (annotation.p0.x + e.movementX <= 0 ||
+              annotation.p0.x + e.movementX >= 900 ||
+              annotation.p1.x + e.movementX <= 0 ||
+              annotation.p1.x + e.movementX >= 900 ||
+              annotation.p0.y + e.movementY <= 0 ||
+              annotation.p0.y + e.movementY >= 900 ||
+              annotation.p1.y + e.movementY <= 0 ||
+              annotation.p1.y + e.movementY >= 900)
+            {
+              setError(true)
+              return
+            }
+          setError(false)
           console.log(e.movementX, e.movementY)
           modifyBbox(elements[1], e.movementX, e.movementY)
         }
 
     };
-
+    // adding 2 points to annotations
     const addingToAnnotations = (tempAnn) => {
       setAnnotations([...annotations, {p0: tempAnn[0], p1: tempAnn[1]}])
+      setChosenAnno(annotations.length)
       setTempAnn([])
       setIsAdding(false)
       // console.log('end adding')
       console.log('end adding points')
 
-    }
+    };
 
     const handleAddingPoint = (event) => {
       console.log('handle adding point called')
@@ -223,9 +263,6 @@ const ImageMask = () => {
       }
     };
 
-
-
-
     const DragablePoint = ({point, index, isTopLeft}) => {
         var x = point.x
         var y = point.y
@@ -257,45 +294,11 @@ const ImageMask = () => {
             >
             </span>
         )
-    }
-
-    const ButtonBar = () => {
-      return (
-        <Space wrap style={{
-          position: 'absolute',
-          top: 100,
-          right: 0,
-          zIndex: '2',
-        }}>
-          <Tooltip title="Add new bounding box">
-            <Button type="primary" shape="circle" icon={<PlusOutlined />} onClick={() => {
-              setIsAdding(true)
-              console.log('adding')
-            }}/>
-          </Tooltip>
-
-          <Button icon={<SaveOutlined />}>Save</Button>
-        </Space>
-      )
-    }
-
-
-
-
+    };
 
     return (
-            // <div
-            //   style={{
-            //     position: 'absolute',
-            //     maxWidth: '900px',
-            //     width: '100%',
-            //     height: '100%',
-            // }}
-
-            // >
-
             <DragMove
-              className='image-mask'
+              className='image-mask unselectable'
               onDragMove={handleDragMove}
               onAddingPoint={handleAddingPoint}
               isAdding={isAdding}
@@ -305,7 +308,6 @@ const ImageMask = () => {
                 width: '100%',
                 height: '100%',
             }}>
-                <ButtonBar />
                 { (tempAnn.length) ?
                   tempAnn.map((point, index) => {
                     return (
@@ -315,7 +317,7 @@ const ImageMask = () => {
                 }
                 {
                   (tempAnn.length) ?
-                  <div
+                  <div // the temp bounding box when adding new bbox
                     style={{
                       position: 'absolute',
                       top: `${Math.min(tempAnn[0].y, mousePos.y)}px`,
@@ -353,17 +355,17 @@ const ImageMask = () => {
                       <div
                         className='overlay'
                         id = {index}
-                        style = {overlaystyle}>
+                        style = {overlaystyle}
+                        onClick={() => setChosenAnno(index)}
+                      >
                       </div>
                       <DragablePoint point={annotation.p1} index={2*index+1} isTopLeft={isp1TopLeft}/>
                       </div>
                     )})}
 
           </DragMove>
-          // </div>
-
         );
-}
+})
 
 export default ImageMask;
 // export {DragableOverlay, DragablePoint}

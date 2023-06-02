@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react'
-import { Row, Col, Collapse, theme, Button, Space, Image, Divider, Spin } from 'antd'
+import React, {useEffect, useState, useRef} from 'react'
+import { Row, Col, Collapse, theme, Button, Space, Image, Divider, Spin, Tooltip } from 'antd'
 import { AppContext } from '../Context';
-import { CaretRightOutlined } from '@ant-design/icons';
+import { CaretRightOutlined, SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
 import BBTab from './BboxTab';
 import axios from 'axios';
 import ImageMask ,{ DragablePoint } from './EditableBBox';
+import "../css/EditableBBox.css"
 const {Panel} = Collapse
-
 
 
 const BboxCollapse = () => {
@@ -79,12 +79,20 @@ const BboxCollapse = () => {
 
 
 const PredictionDisplay = () => {
-    const {imageDisplay, appPhase, prediction, result, loading} = React.useContext(AppContext)
+    const {imageDisplay, appPhase, prediction, result, loading, chAnno} = React.useContext(AppContext)
     const [imageUrl] = imageDisplay;
+    const [chosenAnno] = chAnno
     const [phase, setPhase] = appPhase;
     const [bboxes] = prediction;
     const [codes, setCodes] = result;
     const [isLoading, setIsLoading] = loading;
+    const [isAdding, setIsAdding] = useState(false)
+    const [isEditingBbox, setIsEditingBbox] = useState(false)
+    const childRef = useRef(null)
+
+    const handleDeleteAnnotation = () => {
+      childRef.current.deleteChosenAnnotation();
+    };
 
     function dataURLtoFile(dataurl, filename) {
       var arr = dataurl.split(','),
@@ -98,7 +106,7 @@ const PredictionDisplay = () => {
       return new File([u8arr], filename, {type:mime});
     }
 
-    const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
+    const scale = 900 / imageUrl.width;
 
     const point_list = bboxes.map(
       bbox => {
@@ -159,7 +167,7 @@ const PredictionDisplay = () => {
                   }}>
                     <img
                         src = {imageUrl.url}
-                        className='image-preview'
+                        className='image-preview unselectable'
 
                         // preview={{
                         //   visible: false,
@@ -176,22 +184,87 @@ const PredictionDisplay = () => {
                           maxWidth: '900px'}}
                     >
                     </img>
+                    {
+                    isEditingBbox ?
+                    <ImageMask isAdding = {isAdding} setIsAdding={setIsAdding} ref={childRef}/>
+                    :
                     <Overlay bboxes={bboxes}/>
-                    {/* <ImageMask/> */}
+                    }
                 </Col>
                 <Col p={4}>
-                    <Row align='top' style={{marginBottom: '30px'}}>
+                    <Row align='top' style={{marginBottom: '15px'}}>
                       <Col p={24}>
                       <Space wrap >
-                      <Button type="primary" onClick={() => {
+                      <Button
+                        type="primary"
+                        block={true}
+                        onClick={() => {
                         handleExtract();
                         setPhase('result');
                         }}> Get TeX code </Button>
-                      <Button onClick={() => setPhase('upload')}> Upload another </Button>
+                      <Button
+                        block={true}
+                        onClick={
+                        () => setPhase('upload')
+                        }> Upload another </Button>
                       </Space>
                       </Col>
                     </Row>
-                    <BboxCollapse />
+                    <Row align='top' style={{marginBottom: '15px'}}>
+                      <Col p={24}>
+                        {
+                        isEditingBbox ?
+                        <Space wrap >
+
+                            <Button
+                              type="primary"
+                              shape="circle"
+                              icon={<PlusOutlined />}
+                              disabled={isAdding}
+                              onClick={() => {
+                              setIsAdding(true)
+                              console.log('adding')
+                            }}/>
+
+                          <Button
+                            disabled={isAdding}
+                            onClick={
+                            () => {
+                              setIsEditingBbox(false)
+                              }
+                            }
+                            icon={<SaveOutlined />}>
+                            Save
+                          </Button>
+                          <Button
+                            disabled={isAdding || chosenAnno === -1}
+                            shape="circle"
+                            danger={true}
+                            onClick={() => {handleDeleteAnnotation()}}
+                            icon={<DeleteOutlined />}
+                            >
+
+
+                          </Button>
+                        </Space>
+                        :
+                        <Space wrap >
+                          <Button
+                            block={true}
+                            onClick={() => {
+                            setIsEditingBbox(true)
+                          }}>
+                            Edit bounding boxes
+                          </Button>
+                        </Space>
+                        }
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col>
+                        <BboxCollapse />
+                      </Col>
+                    </Row>
                 </Col>
             </Row>
             </Spin>

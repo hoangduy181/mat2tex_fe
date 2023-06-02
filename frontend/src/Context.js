@@ -11,14 +11,16 @@ export default ({children}) => {
         delurl: "",
     });
     const [bboxes, setBboxes] = useState([]);
+    const [chosenAnno, setChosenAnno] = useState(-1); // chosen annotation (use for delete)
     const [codes, setCodes] = useState([]);
-    const [chosenBbox, setChosenBbox] = useState(-1)
+    const [chosenBbox, setChosenBbox] = useState(-1) // chosen bbox
     const [isLoading, setIsLoading] = useState(false);
 
     const globalVariables = {
         appPhase: [phase, setPhase],
         imageDisplay: [imageUrl, setImageUrl],
         chBbox: [chosenBbox, setChosenBbox],
+        chAnno: [chosenAnno, setChosenAnno],
         prediction: [bboxes, setBboxes],
         result: [codes, setCodes],
         loading: [isLoading, setIsLoading]

@@ -8,8 +8,8 @@ const OverlayItem = ( bbox, phase ) => {
     const { id, label, x, y, width, height } = bbox
 
     const { result, chBbox } = useContext(AppContext);
-    const [codes] = result;
     const [ chosenBbox, setChosenBbox ] = chBbox
+    const [codes] = result;
     const color = (label === 1) ? 'rgba(18,120,9, 0.3)' : 'rgba(204,41,90, 0.3)';
     const bordercolor = (label === 1) ? 'rgb(18,120,9)' : 'rgb(204,41,90)';
     const overlaystyle = {

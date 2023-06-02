@@ -167,7 +167,7 @@ const UploadAndPreview = () => {
 			console.log(res.data)
 			console.log(res.data.predictions)
 			const predictions = res.data.predictions
-			const scale = imageUrl.width > 900 ? 900 / imageUrl.width : 1
+			const scale = 900 / imageUrl.width
 
 
 			const returnBoxes = predictions.map((prediction, index) => {
