@@ -25,6 +25,7 @@ const ResultCollapse = () => {
 
     )
 }
+
 const ResultDisplay = () => {
     const {imageDisplay, appPhase, prediction, loading} = React.useContext(AppContext)
     const [imageUrl] = imageDisplay;

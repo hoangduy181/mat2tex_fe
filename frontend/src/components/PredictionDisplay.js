@@ -81,7 +81,7 @@ const BboxCollapse = () => {
 const PredictionDisplay = () => {
     const {imageDisplay, appPhase, prediction, result, loading, chAnno} = React.useContext(AppContext)
     const [imageUrl] = imageDisplay;
-    const [chosenAnno] = chAnno
+    const [chosenAnno, setChosenAnno] = chAnno
     const [phase, setPhase] = appPhase;
     const [bboxes] = prediction;
     const [codes, setCodes] = result;
@@ -93,6 +93,12 @@ const PredictionDisplay = () => {
     const handleDeleteAnnotation = () => {
       childRef.current.deleteChosenAnnotation();
     };
+
+    const handleSaveAnnotations = () => {
+      childRef.current.saveAnnotationsToBboxes();
+    };
+
+
 
     function dataURLtoFile(dataurl, filename) {
       var arr = dataurl.split(','),
@@ -231,6 +237,7 @@ const PredictionDisplay = () => {
                             onClick={
                             () => {
                               setIsEditingBbox(false)
+                              handleSaveAnnotations()
                               }
                             }
                             icon={<SaveOutlined />}>
@@ -253,6 +260,7 @@ const PredictionDisplay = () => {
                             block={true}
                             onClick={() => {
                             setIsEditingBbox(true)
+                            setChosenAnno(-1)
                           }}>
                             Edit bounding boxes
                           </Button>
