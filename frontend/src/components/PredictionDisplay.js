@@ -1,5 +1,8 @@
 import React, {useEffect, useState, useRef} from 'react'
-import { Row, Col, Collapse, theme, Button, Space, Image, Divider, Spin, Tooltip } from 'antd'
+import { message, Row, Col,
+        Collapse, theme, Button,
+        Space, Image, Divider,
+        Spin, Tooltip, Skeleton, List, Avatar } from 'antd'
 import { AppContext } from '../Context';
 import { CaretRightOutlined, SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
@@ -7,6 +10,8 @@ import BBTab from './BboxTab';
 import axios from 'axios';
 import ImageMask ,{ DragablePoint } from './EditableBBox';
 import "../css/EditableBBox.css"
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 const {Panel} = Collapse
 
 
@@ -24,8 +29,34 @@ const BboxCollapse = () => {
     ghost: true
   };
 
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const loadMoreData = () => {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    fetch('https://randomuser.me/api/?results=10&inc=name,gender,email,nat,picture&noinfo')
+      .then((res) => res.json())
+      .then((body) => {
+        setData([...data, ...body.results]);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+  useEffect(() => {
+    loadMoreData();
+  }, []);
+
   return (
-        <div>
+        <div style={{
+          // margin: 'auto',
+          // width: '100%',
+          height: '300'
+          // padding: 'auto',
+        }}>
         <Collapse
           bordered={false}
           defaultActiveKey={['labels', 'bboxes']}
@@ -46,14 +77,14 @@ const BboxCollapse = () => {
         >
           <p style={{
             color: 'rgb(18,120,9)',
-            margin: '4px 0'
+            // margin: '4px 0'
             }}>Isolated Expression</p>
           <p style={{
             color: 'rgb(204,41,90)',
-            margin: '4px 0'
+            // margin: '4px 0'
             }}>Embedded Expression</p>
         </Panel>
-        <Panel
+        {/* <Panel
           header={<span
             // style={{fontWeight: '500',
             // fontSize: '16px'}}
@@ -71,8 +102,45 @@ const BboxCollapse = () => {
                   />
                 );
               })}
-          </Panel>
+          </Panel> */}
         </Collapse>
+        <div
+          id="scrollableDiv"
+          style={{
+            height: '300px',
+            overflow: 'auto',
+          }}>
+        <InfiniteScroll
+        dataLength={data.length}
+        next={loadMoreData}
+        hasMore={data.length < 50}
+        loader={
+          <Skeleton
+            avatar
+            paragraph={{
+              rows: 1,
+            }}
+            active
+          />
+        }
+        endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
+        scrollableTarget="scrollableDiv"
+      >
+        <List
+          dataSource={data}
+          renderItem={(item) => (
+            <List.Item key={item.email}>
+              <List.Item.Meta
+                avatar={<Avatar src={item.picture.large} />}
+                title={<a href="https://ant.design">{item.name.last}</a>}
+                description={item.email}
+              />
+              <div>Content</div>
+            </List.Item>
+          )}
+        />
+      </InfiniteScroll>
+        </div>
         </div>
       );
 };
@@ -129,6 +197,7 @@ const PredictionDisplay = () => {
         console.log(file)
         const fmData = new FormData();
         const config = {
+          timeout: 60000, // 1 min timeout
           headers: { "content-type": "multipart/form-data" },
         };
         fmData.append("file", file);
@@ -159,6 +228,12 @@ const PredictionDisplay = () => {
       }
       catch (error) {
         console.log(error)
+        setIsLoading(false)
+        if (error.code === 'ECONNABORTED') {
+          message.error('Request timeout')
+        }
+        message.error(error.message)
+        setPhase('predict')
       }
     }
 
@@ -268,11 +343,9 @@ const PredictionDisplay = () => {
                         }
                       </Col>
                     </Row>
-                    <Row>
-                      <Col>
-                        <BboxCollapse />
-                      </Col>
-                    </Row>
+
+                    <BboxCollapse />
+
                 </Col>
             </Row>
             </Spin>

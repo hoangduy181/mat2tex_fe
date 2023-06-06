@@ -49,6 +49,7 @@ const UploadAndPreview = () => {
 		// localStorage.setItem('imgData', file)
 		const fmData = new FormData();
 		const config = {
+			timeout: 5000, // 5ms time out
 			headers: { "content-type": "multipart/form-data" },
 		};
 		fmData.append("image", file);
@@ -72,6 +73,11 @@ const UploadAndPreview = () => {
 			setImageUrl(image);
 
 		} catch (err) {
+			// if (err.code === 'ECONNABORTED') {
+			// 	message.error('Request timeout')
+			// }
+
+
 			console.log("Error: ", err);
 			onError({ err });
 		}
@@ -92,14 +98,15 @@ const UploadAndPreview = () => {
 				var thisImage = reader.result;
 				localStorage.setItem("imgData", thisImage);
 			};
-			reader.readAsDataURL(file.getRawFile)
-			console.log(file.getRawFile())
+			reader.readAsDataURL(file.getRawFile())
+			// console.log(file.getRawFile())
 
 			// console.log(createURLfile)
 
 
 			const fmData = new FormData();
 			const config = {
+				timeout: 5000, // 5ms time out
 				headers: { "content-type": "multipart/form-data" },
 			};
 			fmData.append("image", file.getRawFile());
@@ -123,6 +130,10 @@ const UploadAndPreview = () => {
 				setImageUrl(image);
 			} catch (err) {
 				console.log("Error: ", err);
+				// if (err.code === 'ECONNABORTED') {
+				// 	message.error('Request timeout')
+				// }
+				message.error(err.message)
 				// onError({ err });
 			}
 		} else {
@@ -144,53 +155,72 @@ const UploadAndPreview = () => {
 
 	const handlePredict = async () => {
 		try {
-			setIsLoading(true)
-			// console.log(typeof(tmpFile))
-			const imgData = localStorage.getItem('imgData')
-			var file = dataURLtoFile(imgData,'image.png');
-			console.log(file)
-			const fmData = new FormData();
-			const config = {
-				headers: { "content-type": "multipart/form-data" },
-			};
-			fmData.append("file", file);
+		setIsLoading(true)
+		// console.log(typeof(tmpFile))
+		const imgData = localStorage.getItem('imgData')
+		var file = dataURLtoFile(imgData,'image.png');
+		console.log(file)
+		const fmData = new FormData();
+		const config = {
+			timeout: 60000,
+			headers: { "content-type": "multipart/form-data" },
+		};
+		fmData.append("file", file);
 
-			const res = await axios.post(
-				"http://localhost:5000/detect",
-				// "",
-				fmData,
-				config
-			).then(res => {
-				setIsLoading(false)
-				return res
-			})
-			console.log(res.data)
-			console.log(res.data.predictions)
-			const predictions = res.data.predictions
-			const scale = 900 / imageUrl.width
+		const res = await axios.post(
+			"http://localhost:5000/detect",
+			// "",
+			fmData,
+			config
+		).then(res => {
+			setIsLoading(false)
+			return res
+		})
+		.catch(err => {
+			setIsLoading(false)
+			setStep('preview')
+			setPhase('upload')
+			if (err.code === 'ECONNABORTED') {
+				message.error('Request timeout')
+			}
+			else {
+				// message.error('Error')
+				console.log(err)
+				message.error(err.message)
+			}
+			return
+		})
+		if (res) {
+		console.log(res.data)
+		console.log(res.data.predictions)
+		const predictions = res.data.predictions
+		const scale = 900 / imageUrl.width
 
 
-			const returnBoxes = predictions.map((prediction, index) => {
-				// const {coordinates, img_name, class: class_} = prediction
-				// const [x1, y1, x2, y2] = coordinates
-				const [x1, y1, x2, y2, confidence, className] = prediction
-				return {
-					id: index,
-					x: x1*scale,
-					y: y1*scale,
-					width: (x2-x1)*scale,
-					height: (y2-y1)*scale,
-					confidence,
-					label: (className === 'embedded') ? 1 : 0,
-				}
-			})
+		const returnBoxes = predictions.map((prediction, index) => {
+			// const {coordinates, img_name, class: class_} = prediction
+			// const [x1, y1, x2, y2] = coordinates
+			const [x1, y1, x2, y2, confidence, className] = prediction
+			return {
+				id: index,
+				x: x1*scale,
+				y: y1*scale,
+				width: (x2-x1)*scale,
+				height: (y2-y1)*scale,
+				confidence,
+				label: (className === 'embedded') ? 1 : 0,
+			}
+		})
 
-			console.log(returnBoxes)
-			setBboxes(returnBoxes)
-
-		} catch (err) {
-			console.log('Error: ', err);
+		console.log(returnBoxes)
+		setBboxes(returnBoxes)
 		}
+	} catch (err) {
+		console.log(err)
+		message.error('An error has occurred. Please try again later.')
+	}
+
+
 	}
 
 	const handleUploadAnother = async () => {

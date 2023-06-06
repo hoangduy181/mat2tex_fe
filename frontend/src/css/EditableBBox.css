@@ -4,10 +4,9 @@
     -webkit-user-select: none;
     -o-user-select: none;
     user-select: none;
+    /* cursor: crosshair; */
 }
 
-.glowing {
-    -webkit-box-shadow:0 0 20px blue;
-    -moz-box-shadow: 0 0 20px blue;
-    box-shadow:0 0 20px blue;
+.adding {
+    cursor: crosshair;
 }

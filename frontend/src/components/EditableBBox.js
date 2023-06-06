@@ -315,7 +315,7 @@ const ImageMask = forwardRef(
 
     return (
             <DragMove
-              className='image-mask unselectable'
+              className= {isAdding ? 'image-mask unselectable adding' : 'image-mask unselectable'}
               onDragMove={handleDragMove}
               onAddingPoint={handleAddingPoint}
               isAdding={isAdding}
@@ -324,6 +324,7 @@ const ImageMask = forwardRef(
                 maxWidth: '900px',
                 width: '100%',
                 height: '100%',
+                cursor: 'crosshair'
             }}
             >
                 { (tempAnn.length) ?
