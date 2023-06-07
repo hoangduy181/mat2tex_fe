@@ -2,7 +2,7 @@ import axios from 'axios';
 import React from 'react';
 import { useState } from 'react';
 import { InboxOutlined, SnippetsOutlined } from '@ant-design/icons';
-import { message, Upload, Image, Row, Col, Button, Space } from 'antd';
+import { message, Upload, Image, Row, Col, Button, Space, Spin } from 'antd';
 import '../css/UploadAndPreview.css'
 import { AppContext } from '../Context';
 const { Dragger } = Upload;
@@ -32,6 +32,7 @@ const UploadAndPreview = () => {
 	const [imageUrl, setImageUrl] = imageDisplay;
 	const [bboxes, setBboxes] = prediction;
 	const [isLoading, setIsLoading] = loading;
+	const [codes, setCodes] = result;
 
 	//upload: upload / preview
 	// const [step, setStep] = useState('preview');
@@ -49,7 +50,7 @@ const UploadAndPreview = () => {
 		// localStorage.setItem('imgData', file)
 		const fmData = new FormData();
 		const config = {
-			timeout: 5000, // 5ms time out
+			timeout: 10000, // 10ms time out
 			headers: { "content-type": "multipart/form-data" },
 		};
 		fmData.append("image", file);
@@ -106,7 +107,7 @@ const UploadAndPreview = () => {
 
 			const fmData = new FormData();
 			const config = {
-				timeout: 5000, // 5ms time out
+				timeout: 10000, // 10ms time out
 				headers: { "content-type": "multipart/form-data" },
 			};
 			fmData.append("image", file.getRawFile());
@@ -166,8 +167,6 @@ const UploadAndPreview = () => {
 			headers: { "content-type": "multipart/form-data" },
 		};
 		fmData.append("file", file);
-
-
 		const res = await axios.post(
 			"https://pacific-spire-54560.herokuapp.com/detect",
 			// "",
@@ -178,7 +177,6 @@ const UploadAndPreview = () => {
 		// 	"https://run.mocky.io/v3/fa1788e5-8f5f-4e6d-b661-c14844cdc180"
 		// )
 		.then(res => {
-			setIsLoading(false)
 			return res
 		})
 		.catch(err => {
@@ -219,24 +217,15 @@ const UploadAndPreview = () => {
 
 		console.log(returnBoxes)
 		setBboxes(returnBoxes)
+		setIsLoading(false)
 		setPhase('predict')
 		message.success(`${returnBoxes.length} objects detected`)
 		}
 	} catch (err) {
 		console.log(err)
+		setIsLoading(false)
 		message.error('An error has occurred. Please try again later.')
 	}}
-
-	const handleUploadAnother = async () => {
-		console.log('upload another')
-		try {
-			console.log(imageUrl)
-			const res = await axios.post(imageUrl.delurl)
-			console.log(res)
-			} catch (err) {
-			console.log(err)
-		}
-	}
 
 	const Preview = () => (
 		<div>
@@ -268,9 +257,13 @@ const UploadAndPreview = () => {
 
 						}} type="primary"> Proceed to next step </Button>
 						<Button onClick={() => {
-							handleUploadAnother();
-							setPhase('upload');
-						}}> Upload another </Button>
+							localStorage.removeItem("imgData")
+							setBboxes([])
+							setCodes([])
+							setImageUrl({})
+							setPhase('upload')
+						}}
+						> Upload another </Button>
 						<Button onClick={() => {
 							// setStep('upload');
 							setPhase('edit');
@@ -324,8 +317,12 @@ const UploadAndPreview = () => {
 	</Space>
 	)
 
-	return (<div> {phase==='upload' ? <DragDrop/> : <Preview/>}
-				</div>)
+	return (<div>
+			<Spin spinning={isLoading} size='large'>
+				{phase==='upload' ? <DragDrop/> : <Preview/>}
+
+			</Spin>
+			</div>)
 };
 
 export default UploadAndPreview;

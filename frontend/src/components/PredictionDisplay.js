@@ -151,10 +151,10 @@ const BboxCollapse = () => {
 
 const PredictionDisplay = () => {
     const {imageDisplay, appPhase, prediction, result, loading, chAnno} = React.useContext(AppContext)
-    const [imageUrl] = imageDisplay;
+    const [imageUrl, setImageUrl] = imageDisplay;
     const [chosenAnno, setChosenAnno] = chAnno
     const [phase, setPhase] = appPhase;
-    const [bboxes] = prediction;
+    const [bboxes, setBboxes] = prediction;
     const [codes, setCodes] = result;
     const [isLoading, setIsLoading] = loading;
     const [isEditingBbox, setIsEditingBbox] = useState(false)
@@ -193,29 +193,35 @@ const PredictionDisplay = () => {
 
     const scale = 900 / imageUrl.width;
 
-    const point_list = bboxes.map(
-      bbox => {
-        return [bbox.x/scale, bbox.y/scale, (bbox.x+bbox.width)/scale, (bbox.y+bbox.height)/scale, bbox.confidence, (bbox.label == 1) ? 'embedded' : 'isolated', bbox.id.toString()]
-      }
-    )
-    console.log(JSON.stringify(point_list))
+
 
     const handleExtract = async () => {
       try {
         setIsLoading(true)
+        if (bboxes.length === 0) {
+          message.error('No bounding boxes found. Please add bounding boxes before extracting.')
+          setIsLoading(false)
+          setPhase('predict')
+          return
+        }
+        const point_list = bboxes.map(
+          bbox => {
+            return [bbox.x/scale, bbox.y/scale, (bbox.x+bbox.width)/scale, (bbox.y+bbox.height)/scale, bbox.confidence, (bbox.label == 1) ? 'embedded' : 'isolated', bbox.id.toString()]
+          }
+        )
         const imgData = localStorage.getItem('imgData')
         var file = dataURLtoFile(imgData,'image.png');
         console.log(file)
         const fmData = new FormData();
         const config = {
-          timeout: 60000, // 1 min timeout
+          timeout: 750000, // 1.25 min timeout
           headers: { "content-type": "multipart/form-data" },
         };
         fmData.append("file", file);
         fmData.append("point_list", JSON.stringify(point_list));
 
         // real api:
-        const res = await axios.post(
+        try {        const res = await axios.post(
           "https://pacific-spire-54560.herokuapp.com/extract",
           // "",
           fmData,
@@ -241,17 +247,22 @@ const PredictionDisplay = () => {
             return res
           }
         )
-        console.log(codes)
+        console.log(codes)}
+        catch (error) {
+          console.log(error)
+          setIsLoading(false)
+          message.error(error.message)
+          setPhase('predict')
+          return
+        }
       }
       catch (error) {
-        console.log(error)
-        setIsLoading(false)
-        if (error.code === 'ECONNABORTED') {
-          message.error('Request timeout')
-        }
-        message.error(error.message)
         setPhase('predict')
+        setIsLoading(false)
+        message.error('An error occurred. Please try again.')
+        return
       }
+      setPhase('result');
     }
 
     return (<div>
@@ -298,13 +309,17 @@ const PredictionDisplay = () => {
                         block={true}
                         onClick={() => {
                         handleExtract();
-                        setPhase('result');
                         }}> Get TeX code </Button>
                       <Button
                         block={true}
                         onClick={
-                        () => setPhase('upload')
-                        }> Upload another </Button>
+                        () => {
+                          localStorage.removeItem("imgData")
+                          setBboxes([])
+                          setCodes([])
+                          setImageUrl({})
+                          setPhase('upload')
+                        }}> Upload another </Button>
                       </Space>
                       </Col>
                     </Row>

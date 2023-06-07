@@ -26,10 +26,11 @@ const ResultCollapse = () => {
 }
 
 const ResultDisplay = () => {
-    const {imageDisplay, appPhase, prediction, loading} = React.useContext(AppContext)
-    const [imageUrl] = imageDisplay;
+    const {imageDisplay, appPhase, prediction, loading, result} = React.useContext(AppContext)
     const [phase, setPhase] = appPhase;
     const [bboxes, setBboxes] = prediction;
+    const [codes, setCodes] = result;
+    const [imageUrl, setImageUrl] = imageDisplay;
     const [isLoading, setIsLoading] = loading;
 
     return (<div>
@@ -55,7 +56,13 @@ const ResultDisplay = () => {
                     <Row align='top' style={{marginBottom: '30px'}}>
                             <Col p={24}>
                             <Space wrap>
-                                <Button onClick={() => setPhase('upload')}> Upload another </Button>
+                                <Button onClick={() => {
+                                    localStorage.removeItem("imgData")
+                                    setBboxes([])
+                                    setCodes([])
+                                    setImageUrl({})
+                                    setPhase('upload')
+                                    }}> Upload another </Button>
                             </Space>
                             </Col>
                     </Row>
