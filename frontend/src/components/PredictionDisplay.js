@@ -6,7 +6,6 @@ import { message, Row, Col,
 import { AppContext } from '../Context';
 import { CaretRightOutlined, SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
-import BBTab from './BboxTab';
 import axios from 'axios';
 import ImageMask ,{ DragablePoint } from './EditableBBox';
 import "../css/EditableBBox.css"
@@ -16,8 +15,9 @@ const {Panel} = Collapse
 
 
 const BboxCollapse = () => {
-  const { prediction} = React.useContext(AppContext)
+  const { prediction, chBbox} = React.useContext(AppContext)
   const [bboxes, setBboxes] = prediction;
+  const [chosenBbox, setChosenBbox] = chBbox;
   const { token } = theme.useToken();
 
   const panelStyle = {
@@ -28,35 +28,27 @@ const BboxCollapse = () => {
     border: '1px solid #d9d9d9',
     ghost: true
   };
-
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const loadMoreData = () => {
-    if (loading) {
-      return;
-    }
-    setLoading(true);
-    fetch('https://randomuser.me/api/?results=10&inc=name,gender,email,nat,picture&noinfo')
-      .then((res) => res.json())
-      .then((body) => {
-        setData([...data, ...body.results]);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  };
-  useEffect(() => {
-    loadMoreData();
-  }, []);
+  // const loadMoreData = () => {
+  //   if (loading) {
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   fetch('https://randomuser.me/api/?results=10&inc=name,gender,email,nat,picture&noinfo')
+  //     .then((res) => res.json())
+  //     .then((body) => {
+  //       setData([...data, ...body.results]);
+  //       setLoading(false);
+  //     })
+  //     .catch(() => {
+  //       setLoading(false);
+  //     });
+  // };
+  // useEffect(() => {
+  //   loadMoreData();
+  // }, []);
 
   return (
-        <div style={{
-          // margin: 'auto',
-          // width: '100%',
-          height: '300'
-          // padding: 'auto',
-        }}>
+        <div>
         <Collapse
           bordered={false}
           defaultActiveKey={['labels', 'bboxes']}
@@ -77,69 +69,80 @@ const BboxCollapse = () => {
         >
           <p style={{
             color: 'rgb(18,120,9)',
-            // margin: '4px 0'
-            }}>Isolated Expression</p>
+            margin: '4px 0'
+            }}>Embedded Expression</p>
           <p style={{
             color: 'rgb(204,41,90)',
-            // margin: '4px 0'
-            }}>Embedded Expression</p>
+            margin: '4px 0'
+            }}>Isolated Expression</p>
+          <p style={{
+            color: 'rgb(0,102,204)',
+            margin: '4px 0'
+            }}>Expression</p>
         </Panel>
-        {/* <Panel
-          header={<span
-            // style={{fontWeight: '500',
-            // fontSize: '16px'}}
-            >Bounding Boxes</span>}
-          key="bboxes"
-          style={panelStyle}
-          showArrow={false}
-        >
-              {bboxes.map(
-                bbox => {
-                return (
-                  <BBTab
-                    key={bbox.id}
-                    {...bbox}
-                  />
-                );
-              })}
-          </Panel> */}
+
         </Collapse>
         <div
-          id="scrollableDiv"
           style={{
-            height: '300px',
-            overflow: 'auto',
+            backGround: token.colorBgContainer,
+            borderRadius: token.borderRadiusLG,
+            border: '1px solid #d9d9d9',
           }}>
-        <InfiniteScroll
-        dataLength={data.length}
-        next={loadMoreData}
-        hasMore={data.length < 50}
-        loader={
-          <Skeleton
-            avatar
-            paragraph={{
-              rows: 1,
-            }}
-            active
-          />
-        }
-        endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
-        scrollableTarget="scrollableDiv"
-      >
-        <List
-          dataSource={data}
-          renderItem={(item) => (
-            <List.Item key={item.email}>
-              <List.Item.Meta
-                avatar={<Avatar src={item.picture.large} />}
-                title={<a href="https://ant.design">{item.name.last}</a>}
-                description={item.email}
+          <p style={{
+            padding: '0 16px'
+          }}
+          >Boxes</p>
+          <div id="scrollableDiv"
+                style={{
+                  height: '400px',
+                  overflow: 'auto',
+                  width: '100%',
+                }}>
+            <InfiniteScroll
+            dataLength={bboxes.length}
+            // initialScrollY={66*chosenBbox}
+            loader={
+              <Skeleton
+                avatar
+                paragraph={{
+                  rows: 1,
+                }}
+                active
               />
-              <div>Content</div>
-            </List.Item>
-          )}
-        />
-      </InfiniteScroll>
+            }
+            // endMessage={<Divider plain></Divider>}
+            scrollableTarget="scrollableDiv"
+          >
+            <List
+              // bordered
+              // header={<div>Boxes</div>}
+              dataSource={bboxes}
+              size='small'
+              split={false}
+              renderItem={(item) => (
+                <List.Item
+                  key={item.id}
+                  onClick={() => setChosenBbox(item.id)}
+                  style={{
+                    backgroundColor: chosenBbox === item.id ? 'rgba(0,0,0,0.1)' : 'inherit',
+                  }}
+                  >
+                  <List.Item.Meta
+                    // avatar={<Avatar src={item.picture.large} />}
+                    title={<p
+                      style={{
+                        color: item.label === 0 ? 'rgb(204,41,90)' : item.label=== 1 ? 'rgb(18,120,9)': 'rgb(0,102,204)',
+                      }}
+                      >
+                      Expression #{item.id}</p>}
+                    // description={item.label === 1 ? 'Embedded' :  (item.label === 0) ? 'Isolated' : 'Expression'}
+                  />
+                  <div>{item.label === 1 ? 'Embedded' :  (item.label === 0) ? 'Isolated' : 'Expression'}</div>
+                </List.Item>
+              )}
+            />
+            </InfiniteScroll>
+          </div>
         </div>
         </div>
       );
@@ -154,9 +157,19 @@ const PredictionDisplay = () => {
     const [bboxes] = prediction;
     const [codes, setCodes] = result;
     const [isLoading, setIsLoading] = loading;
-    const [isAdding, setIsAdding] = useState(false)
     const [isEditingBbox, setIsEditingBbox] = useState(false)
+    const [isAdding, setIsAdding] = useState(false)
     const childRef = useRef(null)
+
+    useEffect(() => {
+      if (phase === 'predict') {
+        setIsEditingBbox(false)
+        setIsAdding(false)
+      }
+      if (phase === 'edit') {
+        setIsEditingBbox(true)
+      }
+    }, [phase])
 
     const handleDeleteAnnotation = () => {
       childRef.current.deleteChosenAnnotation();
@@ -165,8 +178,6 @@ const PredictionDisplay = () => {
     const handleSaveAnnotations = () => {
       childRef.current.saveAnnotationsToBboxes();
     };
-
-
 
     function dataURLtoFile(dataurl, filename) {
       var arr = dataurl.split(','),
@@ -203,18 +214,24 @@ const PredictionDisplay = () => {
         fmData.append("file", file);
         fmData.append("point_list", JSON.stringify(point_list));
 
+        // real api:
         const res = await axios.post(
-          "http://localhost:5000/extract",
+          "https://pacific-spire-54560.herokuapp.com/extract",
           // "",
           fmData,
           config
-        ).then(
+        ).
+        // const res = await axios.get(
+        //   "https://run.mocky.io/v3/f77c9f27-b85e-46a0-880f-4480ed001866"
+        // ).
+        then(
           res => {
             const result_list = res.data.predictions.map(
               (prediction, index) => {
                 const {img_name, latex} = prediction
                 return {
                   id: index,
+                  label: bboxes[index].label,
                   code: latex
                 }
               }

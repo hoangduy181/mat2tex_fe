@@ -34,7 +34,7 @@ const UploadAndPreview = () => {
 	const [isLoading, setIsLoading] = loading;
 
 	//upload: upload / preview
-	const [step, setStep] = useState('upload');
+	// const [step, setStep] = useState('preview');
 
 	const uploadImage = async options => {
 		const { onSuccess, onError, file } = options;
@@ -62,7 +62,7 @@ const UploadAndPreview = () => {
 			);
 
 			onSuccess("Ok");
-			setStep('review');
+			setPhase('preview');
 			const image = {
 				width:res.data.data.width,
 				height:res.data.data.height,
@@ -119,7 +119,7 @@ const UploadAndPreview = () => {
 				);
 
 				// onSuccess("Ok");
-				setStep('review');
+				setPhase('preview');
 				console.log(res)
 				message.success("Image uploaded successfully")
 				const image={
@@ -167,19 +167,24 @@ const UploadAndPreview = () => {
 		};
 		fmData.append("file", file);
 
+
 		const res = await axios.post(
-			"http://localhost:5000/detect",
+			"https://pacific-spire-54560.herokuapp.com/detect",
 			// "",
 			fmData,
 			config
-		).then(res => {
+		)
+		// const res = await axios.get(
+		// 	"https://run.mocky.io/v3/fa1788e5-8f5f-4e6d-b661-c14844cdc180"
+		// )
+		.then(res => {
 			setIsLoading(false)
 			return res
 		})
 		.catch(err => {
 			setIsLoading(false)
-			setStep('preview')
-			setPhase('upload')
+			setPhase('preview')
+			// setPhase('upload')
 			if (err.code === 'ECONNABORTED') {
 				message.error('Request timeout')
 			}
@@ -214,14 +219,13 @@ const UploadAndPreview = () => {
 
 		console.log(returnBoxes)
 		setBboxes(returnBoxes)
+		setPhase('predict')
+		message.success(`${returnBoxes.length} objects detected`)
 		}
 	} catch (err) {
 		console.log(err)
 		message.error('An error has occurred. Please try again later.')
-	}
-
-
-	}
+	}}
 
 	const handleUploadAnother = async () => {
 		console.log('upload another')
@@ -260,13 +264,19 @@ const UploadAndPreview = () => {
 						<Space wrap direction='horizontal'>
 						<Button onClick={() => {
 							handlePredict();
-							setStep('upload');
-							setPhase('predict');
+							// setStep('upload');
+
 						}} type="primary"> Proceed to next step </Button>
 						<Button onClick={() => {
 							handleUploadAnother();
-							setStep('upload');
+							setPhase('upload');
 						}}> Upload another </Button>
+						<Button onClick={() => {
+							// setStep('upload');
+							setPhase('edit');
+						}}>
+							Add annotation manually
+						</Button>
 						</Space>
 					</Col>
 				</Row>
@@ -314,7 +324,7 @@ const UploadAndPreview = () => {
 	</Space>
 	)
 
-	return (<div> {step==='upload' ? <DragDrop/> : <Preview/>}
+	return (<div> {phase==='upload' ? <DragDrop/> : <Preview/>}
 				</div>)
 };
 

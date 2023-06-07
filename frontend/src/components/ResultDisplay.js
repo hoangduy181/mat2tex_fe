@@ -3,7 +3,6 @@ import { Row, Col, Collapse, theme, Button, Space, Image, Spin } from 'antd'
 import { AppContext } from '../Context';
 import { CaretRightOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
-import BBTab from './BboxTab';
 import ResultTabs from './ResultTab';
 const {Panel} = Collapse
 

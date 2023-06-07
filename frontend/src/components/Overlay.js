@@ -4,7 +4,7 @@ import {Popover, Typography} from "antd";
 
 const {Text, Paragraph} = Typography;
 
-const OverlayItem = ( bbox, phase ) => {
+const OverlayItem = ( {bbox, phase} ) => {
     const { id, label, x, y, width, height } = bbox
 
     const { result, chBbox } = useContext(AppContext);
@@ -25,6 +25,7 @@ const OverlayItem = ( bbox, phase ) => {
         borderColor: bordercolor,
     }
     const democode = codes.length > 0 ? codes[id].code : ''
+
     return (
       (phase === 'result') ?
       <Popover
@@ -33,16 +34,21 @@ const OverlayItem = ( bbox, phase ) => {
             text: codes.length > 0 ? codes[id].code : ''
         }} style={{ margin: 0 }}>
             <Text
-              style={{width: 200}}
+              code
               ellipsis={{
-                      tooltip: "Copy to clipboard",
-                    }}
+                rows: 3,
+                expandable: true,
+                symbol: 'more',
+              }}
+              style={{
+                width: 300,
+              }}
             >
               {democode}
             </Text>
           </Paragraph>
         }
-        title="Expression code"
+        title={`Expression #${id}`}
         trigger="click"
       >
         <div
@@ -62,7 +68,7 @@ const OverlayItem = ( bbox, phase ) => {
         style={overlaystyle}
       ></div>
 
-    );
+    )
 }
 
 const Overlay = ( bboxes ) => {
@@ -80,10 +86,11 @@ const Overlay = ( bboxes ) => {
         }}
         >
             {bboxes.bboxes.map((bbox) => {
-                return OverlayItem(
-                    bbox,
-                    phase,
-                );
+                return <OverlayItem
+                    key = {bbox.id}
+                    bbox = {bbox}
+                    phase = {phase}
+                />;
             })}
         </div>
     );

@@ -1,7 +1,9 @@
 import React, {useContext} from "react";
 import {AppContext} from "../Context";
-import {Collapse, theme, Typography} from 'antd'
+import {Collapse, theme, Typography, List, Skeleton, } from 'antd'
 import {CaretRightOutlined} from '@ant-design/icons';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 
 const {Panel} = Collapse;
 const {Text, Paragraph} = Typography;
@@ -40,35 +42,104 @@ const ResultTabs = () => {
     const predictLen = bboxes.length
     const array = [ ...Array(predictLen).keys() ]
     return (
-        <Collapse
-            bordered={false}
-            expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-            style={{
-                background: token.colorBgContainer,
-                width: '100%'
-            }}
-            defaultActiveKey={[1]}
-        >
+        // <Collapse
+        //     bordered={false}
+        //     expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+        //     style={{
+        //         background: token.colorBgContainer,
+        //         width: '100%'
+        //     }}
+        //     defaultActiveKey={[1]}
+        // >
 
-        {[ ...Array(predictLen).keys() ].map((index) => (
-                <Panel
-                header={getHeader(index)}
-                key={index}
-                showArrow={false}
-                style={getPanelStyle(index)}
-                onMouseEnter={() => setChosenBbox(bboxes[index].id)}
-                onMouseLeave={() => setChosenBbox(-1)}
-                >
-                    <Paragraph copyable={{
-                        text: codes.length > 0 ? codes[index].code : ''
-                    }} style={{margin: 0}}>
-                    <Text code>
-                    {codes.length > 0 ? codes[index].code : ''}
-                    </Text>
-                    </Paragraph>
-                </Panel>
-             ))}
-        </Collapse>
+        // {[ ...Array(predictLen).keys() ].map((index) => (
+        //         <Panel
+        //         header={getHeader(index)}
+        //         key={index}
+        //         showArrow={false}
+        //         style={getPanelStyle(index)}
+        //         onMouseEnter={() => setChosenBbox(bboxes[index].id)}
+        //         onMouseLeave={() => setChosenBbox(-1)}
+        //         >
+        //             <Paragraph copyable={{
+        //                 text: codes.length > 0 ? codes[index].code : ''
+        //             }} style={{margin: 0}}>
+        //             <Text code>
+        //             {codes.length > 0 ? codes[index].code : ''}
+        //             </Text>
+        //             </Paragraph>
+        //         </Panel>
+        //      ))}
+        // </Collapse>
+        <div
+          style={{
+            backGround: token.colorBgContainer,
+            borderRadius: token.borderRadiusLG,
+            border: '1px solid #d9d9d9',
+          }}>
+          <p style={{
+            padding: '0 16px'
+          }}
+          >Boxes</p>
+          <div id="scrollableDiv"
+                style={{
+                  height: '400px',
+                  overflow: 'auto',
+                  width: '100%',
+                }}>
+            <InfiniteScroll
+            dataLength={bboxes.length}
+            // initialScrollY={66*chosenBbox}
+            loader={
+              <Skeleton
+                avatar
+                paragraph={{
+                  rows: 1,
+                }}
+                active
+              />
+            }
+            // endMessage={<Divider plain></Divider>}
+            scrollableTarget="scrollableDiv"
+          >
+            <List
+              // bordered
+              // header={<div>Boxes</div>}
+              dataSource={codes}
+              size='small'
+              split={false}
+              renderItem={(item) => (
+                <List.Item
+                  key={item.id}
+                  onClick={() => setChosenBbox(item.id)}
+                    style={{
+                        backgroundColor: chosenBbox === item.id ? 'rgba(0,0,0,0.1)' : 'inherit',
+                    }}
+                  >
+                  <List.Item.Meta
+                    // avatar={<Avatar src={item.picture.large} />}
+                    title={<p
+                      style={{
+                        color: item.label === 0 ? 'rgb(204,41,90)' : item.label===1 ? 'rgb(18,120,9)': 'rgb(0,102,204)',
+                      }}
+                      >
+                      Expression #{item.id}</p>}
+                    description={
+                        <Paragraph copyable={{
+                        text: item.code
+                        }} style={{margin: 0}}>
+                            <Text code>
+                            {item.code}
+                            </Text>
+                        </Paragraph>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+            </InfiniteScroll>
+          </div>
+        </div>
     )
 }
 

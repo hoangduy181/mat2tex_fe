@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Layout, Menu, theme, Tabs } from 'antd';
 import '../css/HomePage.css';
 import UploadAndPreview from '../components/UploadAndPreview';
@@ -31,6 +31,17 @@ const HomePage = () => {
 	const {appPhase, loading} = React.useContext(AppContext)
 	const [phase, setPhase] = appPhase;
 	const [isLoading] = loading;
+	const [activeKey, setActiveKey] = React.useState('');
+
+	useEffect(() => {
+	if (phase === 'upload' || phase === 'preview') {
+		setActiveKey('upload')
+	} else if (phase === 'predict' || phase === 'edit') {
+		setActiveKey('predict')
+	} else if (phase === 'result') {
+		setActiveKey('result')
+	}}, [phase])
+	
 	return (
 		<Layout>
 			<PageHeader/>
@@ -43,7 +54,7 @@ const HomePage = () => {
 					<Tabs
 						defaultActiveKey="1"
 						centered
-						activeKey={phase}
+						activeKey={activeKey}
 						items = {[
 							{
 								key: 'upload',

@@ -1,0 +1,68 @@
+{
+    "predictions": [
+      {
+        "img_name": "0",
+        "latex": "F ( i \\pi - \\theta ) = \\operatorname { c o s h } { \\frac { 1 } { 2 } } \\theta \\; \\mathrm { e x p } \\int _ { 0 } ^ { \\infty } \\frac { d t } { t } \\, \\frac { s i n h } { 1 } \\, \\mathrm { c o s h } \\, \\frac { t } { 2 } \\, \\mathrm { c i n h } \\, t { \\frac { \\theta } { 2 \\pi } } \\, ."
+      },
+      {
+        "img_name": "1",
+        "latex": "\\Psi _ { \\alpha } ( \\underline { { { \\theta } } } , \\underline { { { 2 } } } )"
+      },
+      {
+        "img_name": "2",
+        "latex": "( i ) - ( v )"
+      },
+      {
+        "img_name": "3",
+        "latex": "\\mathcal { O } _ { \\alpha } ( \\underline { { { \\theta } } } )"
+      },
+      {
+        "img_name": "4",
+        "latex": "\\langle \\, 0 \\, | \\, O ( 0 ) \\, | \\, p _ { 1 } , p _ { 2 } \\rangle ^ { i n } = \\langle \\, 0 \\, | \\, O ( 0 ) \\, | \\, p _ { 2 } , p _ { 1 } \\rangle ^ { o u t } \\, S \\, ( \\theta _ { 1 2 } ) \\, \\, ."
+      },
+      {
+        "img_name": "5",
+        "latex": "p _ { n } ^ { \\mathrm { O } } ( \\underline { { { \\theta } } } , \\underline { { { z } } } )"
+      },
+      {
+        "img_name": "6",
+        "latex": "( i ) - ( v )"
+      },
+      {
+        "img_name": "7",
+        "latex": "( i ^ { \\prime } ) - ( v ^ { \\prime } )"
+      },
+      {
+        "img_name": "8",
+        "latex": "{ \\cal O } _ { \\underline { { { \\alpha } } } } ( \\theta ) = \\int _ { C _ { 2 } } d z _ { 1 } \\cdot \\cdot \\cdot \\int _ { C _ { 2 } } d z _ { m } \\, h ( \\underline { { { \\theta } } } , \\underline { { { z } } } ) \\, p _ { n } ^ { \\mathcal { O } } ( \\underline { { { \\theta } } } , \\underline { { { z } } } ) \\Psi _ { \\underline { { { \\alpha } } } } ( \\underline { { { \\theta } } } , \\underline { { { z } } } )"
+      },
+      {
+        "img_name": "9",
+        "latex": "\\langle \\, p _ { 1 } \\mid O ( 0 ) \\mid p _ { 2 } \\rangle = F \\left ( i \\pi - \\theta _ { 1 2 } \\right )"
+      },
+      {
+        "img_name": "10",
+        "latex": "\\begin{aligned} F \\left ( \\theta \\right ) = F \\left ( - \\theta \\right ) S \\left ( \\theta \\right ) \\\\ F \\left ( i \\pi - \\theta \\right ) = F \\left ( i \\pi + \\theta \\right ) \\, . \\end{aligned}"
+      },
+      {
+        "img_name": "11",
+        "latex": "( j = 1 , \\cdot \\cdot \\cdot , m )"
+      },
+      {
+        "img_name": "12",
+        "latex": "p _ { 1 } p _ { 2 } = m ^ { 2 } \\, \\mathrm { c o s h } \\, \\theta _ { 1 2 }"
+      },
+      {
+        "img_name": "13",
+        "latex": "\\langle \\, 0 \\, | \\, O ( 0 ) \\, | \\, p _ { 1 } , p _ { 2 } \\rangle ^ { i n / o u t } = F \\left ( ( p _ { 1 } + p _ { 2 } ) ^ { 2 } \\pm i \\varepsilon ) = F \\left ( \\pm \\theta _ { 1 2 } \\right )"
+      },
+      {
+        "img_name": "14",
+        "latex": "z _ { j }"
+      },
+      {
+        "img_name": "15",
+        "latex": "{ \\cal C } _ { \\underline { { { \\theta } } } }"
+      }
+    ]
+  }

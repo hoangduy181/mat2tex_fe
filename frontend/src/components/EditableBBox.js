@@ -113,18 +113,7 @@ const ImageMask = forwardRef(
   const [chosenAnno, setChosenAnno] = chAnno
 
   // const [isAdding, setIsAdding] = useState(false)
-  const tempAnnotations = (bboxes.length == 0) ? [
-    {
-      p0: {x: 100, y: 100},
-      p1: {x: 200, y: 200},
-      label: 1,
-    },
-    {
-      p0: {x: 300, y: 300},
-      p1: {x: 400, y: 400},
-      label: 0
-    }
-  ]
+  const tempAnnotations = (bboxes.length == 0) ? []
   : bboxes.map(
     bbox => {
       return {
