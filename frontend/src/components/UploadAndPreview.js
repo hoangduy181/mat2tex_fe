@@ -164,7 +164,8 @@ const UploadAndPreview = () => {
 		const fmData = new FormData();
 		const config = {
 			timeout: 60000,
-			headers: { "content-type": "multipart/form-data",
+			headers: {
+						"content-type": "multipart/form-data",
 						"Access-Control-Allow-Origin": "*",
 					},
 		};

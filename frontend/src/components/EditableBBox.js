@@ -102,10 +102,38 @@ onMouseUp: () => {},
 
 const ImageMask = forwardRef(
   (props, ref) => {
-
   const {imageDisplay, appPhase, prediction, result, loading, chAnno} = useContext(AppContext)
   const [imageUrl] = imageDisplay;
-  // const [phase, setPhase] = appPhase;
+  const [mousePos, setMousePos] = useState({x : 0, y : 0});
+  // mousePos: vị trí tương đối của chuột so với image-mask
+
+  useEffect(() => {
+    const imagemask = document.querySelector('.image-mask')
+    console.log('useEffect mouse called')
+    // imagemask.disableSelection = true
+    const bodyRect = document.body.getBoundingClientRect()
+    const elemRect = imagemask.getBoundingClientRect()
+    const handleMouseMove = (event) => {
+      // console.log(event.clientX, elemRect.left, bodyRect.left, window.scrollX)
+      // console.log(event.clientY, elemRect.top, bodyRect.top, window.scrollY)
+      setMousePos(
+        {
+          x: event.clientX - (elemRect.left - bodyRect.left) + window.scrollX,
+          y: event.clientY - (elemRect.top - bodyRect.top) + window.scrollY
+        }
+      )
+    };
+
+    imagemask.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      imagemask.removeEventListener(
+        'mousemove',
+        handleMouseMove
+      );
+    };
+    }, [mousePos.x===0]);
+
+  const [phase, setPhase] = appPhase;
   const [bboxes, setBboxes] = prediction;
   // const [codes, setCodes] = result;
   // const [isLoading, setIsLoading] = loading;
@@ -137,10 +165,10 @@ const ImageMask = forwardRef(
         (annotation, index) => {
           return {
             id: index,
-            x: Math.floor(annotation.p0.x),
-            y: Math.floor(annotation.p0.y),
-            width: Math.floor((annotation.p1.x - annotation.p0.x)),
-            height: Math.floor((annotation.p1.y - annotation.p0.y)),
+            x: Math.floor(Math.min(annotation.p0.x, annotation.p1.x)),
+            y: Math.floor(Math.min(annotation.p0.y, annotation.p1.y)),
+            width: Math.floor(Math.abs(annotation.p1.x - annotation.p0.x)),
+            height: Math.floor(Math.abs(annotation.p1.y - annotation.p0.y)),
             confidence: -1,
             label: annotation.label,
           }
@@ -149,36 +177,9 @@ const ImageMask = forwardRef(
     }
   }))
 
-  const [mousePos, setMousePos] = useState({});
   const [tempAnn, setTempAnn] = useState([])
   const [error, setError] = useState(false)
-  // mousePos: vị trí tương đối của chuột so với image-mask
 
-  useEffect(() => {
-    const imagemask = document.querySelector('.image-mask')
-    // imagemask.disableSelection = true
-    const bodyRect = document.body.getBoundingClientRect()
-    const elemRect = imagemask.getBoundingClientRect()
-    const handleMouseMove = (event) => {
-      // console.log(event.clientX, elemRect.left, bodyRect.left, window.scrollX)
-      // console.log(event.clientY, elemRect.top, bodyRect.top, window.scrollY)
-      setMousePos(
-        {
-          x: event.clientX - (elemRect.left - bodyRect.left) + window.scrollX,
-          y: event.clientY - (elemRect.top - bodyRect.top) + window.scrollY
-        }
-      )
-    };
-
-    imagemask.addEventListener('mousemove', handleMouseMove);
-    return () => {
-
-      imagemask.removeEventListener(
-        'mousemove',
-        handleMouseMove
-      );
-    };
-    }, []);
 
   useEffect(() => {
     if (error === true) {
@@ -259,16 +260,43 @@ const ImageMask = forwardRef(
             x: event.clientX - (elemRect.left - bodyRect.left) + window.scrollX,
             y: event.clientY - (elemRect.top - bodyRect.top) + window.scrollY
           }
+        if (pos.x <= 0 || pos.y <= 0 || pos.x >= 900 || pos.y >= imageUrl.height*900/imageUrl.width) {
+          message.error('Cannot add point outside image')
+          return
+        }
         if (tempAnn.length == 0) {
             tempAnn.push(pos)
         }
         else if (tempAnn.length == 1) {
-          tempAnn.push(pos)
-          addingToAnnotations(tempAnn)
+          if (tempAnn[0].x !== pos.x && tempAnn[0].y !== pos.y) {
+            tempAnn.push(pos)
+            addingToAnnotations(tempAnn)
+          }
+          else {
+            message.error('Cannot add a point right on top of another point')
+          }
         }
       }
     };
 
+
+    const TempBoundingBox = () => {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            top: `${Math.min(tempAnn[0].y, mousePos.y)}px`,
+            left: `${Math.min(tempAnn[0].x, mousePos.x)}px`,
+            width: `${Math.abs(tempAnn[0].x - mousePos.x)}px`,
+            height: `${Math.abs(tempAnn[0].y - mousePos.y)}px`,
+            backgroundColor: 'rgba(0,102,204,0.3)',
+            borderColor: 'rgb(0,102,204)',
+            borderWidth: '2px',
+            borderStyle: 'solid',
+          }}>
+        </div>
+      )
+    }
     const DragablePoint = ({point, index, isTopLeft}) => {
         var x = point.x
         var y = point.y
@@ -307,6 +335,7 @@ const ImageMask = forwardRef(
               className= {isAdding ? 'image-mask unselectable adding' : 'image-mask unselectable'}
               onDragMove={handleDragMove}
               onAddingPoint={handleAddingPoint}
+              // onMouseMove={handlePointerMove}
               isAdding={isAdding}
               style={{
                 position: 'absolute',
@@ -324,21 +353,7 @@ const ImageMask = forwardRef(
                 }
                 {
                   (tempAnn.length) ?
-                  <div // the temp bounding box when adding new bbox
-                    style={{
-                      position: 'absolute',
-                      top: `${Math.min(tempAnn[0].y, mousePos.y)}px`,
-                      left: `${Math.min(tempAnn[0].x, mousePos.x)}px`,
-                      width: `${Math.abs(tempAnn[0].x - mousePos.x)}px`,
-                      height: `${Math.abs(tempAnn[0].y - mousePos.y)}px`,
-                      backgroundColor: 'rgba(0,102,204,0.3)',
-                      borderColor: 'rgb(0,102,204)',
-                      borderWidth: '2px',
-                      borderStyle: 'solid',
-                              // cursor: 'all-scroll'
-                    }}>
-                    {/* {`${mousePos.x} ${mousePos.y}`} */}
-                  </div>
+                  <TempBoundingBox/>
                 : null
                 }
 

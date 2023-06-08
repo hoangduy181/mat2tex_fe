@@ -66,6 +66,7 @@ const ResultDisplay = () => {
                             <Space wrap>
                                 <Button onClick={() => {
                                     localStorage.removeItem("imgData")
+                                    
                                     setBboxes([])
                                     setCodes([])
                                     setImageUrl({})

@@ -287,7 +287,6 @@ const PredictionDisplay = () => {
             </Modal>
             <Row justify="space-between" align="top">
                 <Col p={20} style={{
-                  padding: '0 12px 0 12px',
                   display: 'flex',
     					    justifyContent: 'center',
                   position: 'relative'
@@ -339,11 +338,14 @@ const PredictionDisplay = () => {
                         block={true}
                         onClick={
                         () => {
-                          localStorage.removeItem("imgData")
+                          setIsAdding(false)
+                          setIsEditingBbox(false)
+                          setChosenAnno(-1)
                           setBboxes([])
                           setCodes([])
                           setImageUrl({})
                           setPhase('upload')
+                          localStorage.removeItem("imgData")
                         }}> Upload another </Button>
                       </Space>
                       </Col>
