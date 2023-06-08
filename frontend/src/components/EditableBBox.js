@@ -313,7 +313,6 @@ const ImageMask = forwardRef(
                 maxWidth: '900px',
                 width: '100%',
                 height: '100%',
-                cursor: 'crosshair'
             }}
             >
                 { (tempAnn.length) ?

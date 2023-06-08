@@ -164,14 +164,16 @@ const UploadAndPreview = () => {
 		const fmData = new FormData();
 		const config = {
 			timeout: 60000,
-			headers: { "content-type": "multipart/form-data" },
+			headers: { "content-type": "multipart/form-data",
+						"Access-Control-Allow-Origin": "*",
+					},
 		};
 		fmData.append("file", file);
 		const res = await axios.post(
 			"https://pacific-spire-54560.herokuapp.com/detect",
 			// "",
 			fmData,
-			config
+			config,
 		)
 		// const res = await axios.get(
 		// 	"https://run.mocky.io/v3/fa1788e5-8f5f-4e6d-b661-c14844cdc180"

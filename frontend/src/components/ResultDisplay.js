@@ -34,7 +34,14 @@ const ResultDisplay = () => {
     const [isLoading, setIsLoading] = loading;
 
     return (<div>
-            <Spin spinning={isLoading} size='large'>
+            <Spin
+                spinning={isLoading}
+                tip= {
+                <div>
+                    <h3> Please wait ... </h3>
+                    <p> This may take a few minutes. Thank you for your patience. </p>
+                </div> }
+                size='large'>
             <Row justify="space-between" align="top">
                 <Col span={20} style={{
                   padding: '0 12px 0 12px',
@@ -48,7 +55,8 @@ const ResultDisplay = () => {
                         style = {{
                             display: 'block',
                             width: '100%',
-                            maxWidth: '900px'}}
+                            maxWidth: '900px'
+                        }}
                     />
                     <Overlay bboxes = {bboxes}/>
                 </Col>

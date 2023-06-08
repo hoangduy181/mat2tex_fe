@@ -2,7 +2,7 @@ import React, {useEffect, useState, useRef} from 'react'
 import { message, Row, Col,
         Collapse, theme, Button,
         Space, Image, Divider,
-        Spin, Tooltip, Skeleton, List, Avatar } from 'antd'
+        Spin, Tooltip, Skeleton, List, Avatar, Modal } from 'antd'
 import { AppContext } from '../Context';
 import { CaretRightOutlined, SaveOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import Overlay from './Overlay';
@@ -159,6 +159,7 @@ const PredictionDisplay = () => {
     const [isLoading, setIsLoading] = loading;
     const [isEditingBbox, setIsEditingBbox] = useState(false)
     const [isAdding, setIsAdding] = useState(false)
+    const [displayModal, setDisplayModal] = useState(false)
     const childRef = useRef(null)
 
     useEffect(() => {
@@ -198,6 +199,7 @@ const PredictionDisplay = () => {
     const handleExtract = async () => {
       try {
         setIsLoading(true)
+        setPhase('result');
         if (bboxes.length === 0) {
           message.error('No bounding boxes found. Please add bounding boxes before extracting.')
           setIsLoading(false)
@@ -214,8 +216,10 @@ const PredictionDisplay = () => {
         console.log(file)
         const fmData = new FormData();
         const config = {
-          timeout: 750000, // 1.25 min timeout
-          headers: { "content-type": "multipart/form-data" },
+          timeout: 120000, // 2 min timeout
+          headers: { "content-type": "multipart/form-data",
+                    "Access-Control-Allow-Origin": "*"
+        },
         };
         fmData.append("file", file);
         fmData.append("point_list", JSON.stringify(point_list));
@@ -262,11 +266,25 @@ const PredictionDisplay = () => {
         message.error('An error occurred. Please try again.')
         return
       }
-      setPhase('result');
+
     }
 
     return (<div>
             <Spin spinning={isLoading} size='large'>
+            <Modal
+              title="Continue without saving?"
+              style={{ top: 20 }}
+              open={displayModal}
+              onOk={() => {
+                setDisplayModal(false)
+                handleExtract()
+              }}
+              onCancel={() => {
+                setDisplayModal(false)
+              }}
+            >
+              <p> Warning! It appears that you have made changes to the process but have not saved them yet. Do you want to continue without saving? Your changes will be lost if you exit without saving. Press 'Cancel' to go back and save, or 'Ok' to proceed without saving. </p>
+            </Modal>
             <Row justify="space-between" align="top">
                 <Col p={20} style={{
                   padding: '0 12px 0 12px',
@@ -290,7 +308,9 @@ const PredictionDisplay = () => {
                           // position: 'absolute',
                           // zIndex: 1,
                           width: '100%',
-                          maxWidth: '900px'}}
+                          maxWidth: '900px'
+
+                        }}
                     >
                     </img>
                     {
@@ -308,7 +328,12 @@ const PredictionDisplay = () => {
                         type="primary"
                         block={true}
                         onClick={() => {
-                        handleExtract();
+                          if (isEditingBbox) {
+                            setDisplayModal(true)
+                          }
+                          else {
+                          handleExtract();
+                          }
                         }}> Get TeX code </Button>
                       <Button
                         block={true}
@@ -357,8 +382,6 @@ const PredictionDisplay = () => {
                             onClick={() => {handleDeleteAnnotation()}}
                             icon={<DeleteOutlined />}
                             >
-
-
                           </Button>
                         </Space>
                         :
