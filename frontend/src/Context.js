@@ -3,7 +3,7 @@ import React, { useState } from "react";
 export const AppContext = React.createContext(null);
 
 export default ({children}) => {
-    const [phase, setPhase] = useState('preview'); // upload / preview / predict / edit / review
+    const [phase, setPhase] = useState('upload'); // upload / preview / predict / edit / review
     const [imageUrl, setImageUrl] = useState({
         width: 1447,
         height: 2048,

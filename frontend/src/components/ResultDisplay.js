@@ -49,15 +49,25 @@ const ResultDisplay = () => {
     			  justifyContent: 'center',
                   position: 'relative'
                   }}>
+                    <div
+                      className='unselectable'
+                      style={{
+                        width: '900px',
+                        height: 'auto',
+                        position: 'relative',
+                      }}>
                     <img
                         src = {imageUrl.url}
-                        className='image-preview'
+                        className='image-preview unselectable'
                         style = {{
-                            display: 'block',
-                            width: '100%',
-                            maxWidth: '900px'
+                          display: 'block',
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          height: 'auto',
                         }}
-                    />
+                        >
+                    </img>
+                    </div>
                     <Overlay bboxes = {bboxes}/>
                 </Col>
                 <Col span={4}>
@@ -66,7 +76,7 @@ const ResultDisplay = () => {
                             <Space wrap>
                                 <Button onClick={() => {
                                     localStorage.removeItem("imgData")
-                                    
+
                                     setBboxes([])
                                     setCodes([])
                                     setImageUrl({})

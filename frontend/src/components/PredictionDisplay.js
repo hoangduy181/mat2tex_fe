@@ -291,27 +291,25 @@ const PredictionDisplay = () => {
     					    justifyContent: 'center',
                   position: 'relative'
                   }}>
+                    <div
+                      className='unselectable'
+                      style={{
+                        width: '900px',
+                        height: 'auto',
+                        position: 'relative',
+                      }}>
                     <img
                         src = {imageUrl.url}
                         className='image-preview unselectable'
-
-                        // preview={{
-                        //   visible: false,
-                        //   mask: <Mask />,
-                        //   maskClassName: 'image-preview-mask',
-                        //   maskStyle: {width: '100%', height: '100%'}
-                        // }}
-                        // preview = {false}
                         style = {{
                           display: 'block',
-                          // position: 'absolute',
-                          // zIndex: 1,
-                          width: '100%',
-                          maxWidth: '900px'
-
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          height: 'auto',
                         }}
-                    >
+                        >
                     </img>
+                    </div>
                     {
                     isEditingBbox ?
                     <ImageMask isAdding = {isAdding} setIsAdding={setIsAdding} ref={childRef}/>
